@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=b5fOwlQUVcqeuAvGX9oAMmSM"></script>
+    <script type="text/javascript" src="js/convertor.js"></script>
+
+    <title>图腾柱</title>
+    <style type="text/css">
+        body, html,#allmap {width: 80%;height: 80%;overflow: hidden;margin:0;}
+    </style>
+</head>
+<body>
+<p id="demo">Click the button to get your coordinates:</p>
+
+<button onclick="getLocation()">Try It</button>
+<div id="allmap"></div>
+</body>
+</html>
+<script type="text/javascript">
+
+// 百度地图API功能
+var map = new BMap.Map("allmap");            // 创建Map实例
+var point = new BMap.Point(116.404, 39.915);    // 创建点坐标
+map.centerAndZoom(point,15);                     // 初始化地图,设置中心点坐标和地图级别。
+map.enableScrollWheelZoom();                            //启用滚轮放大缩小
+
+</script>
+<script>
+var x = document.getElementById("demo");
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+
+function showPosition(position) {
+    x.innerHTML="Latitude: " + position.coords.latitude +
+    "<br>Longitude: " + position.coords.longitude;
+
+    var xx=position.coords.longitude
+    var yy=position.coords.latitude
+
+    var gpsPoint = new BMap.Point(xx,yy);
+
+
+    map.centerAndZoom(gpsPoint,15)
+
+
+    //添加谷歌marker和label
+    var markergps = new BMap.Marker(gpsPoint);
+    map.addOverlay(markergps); //添加GPS标注
+    var labelgps = new BMap.Label("我是GPS标注哦",{offset:new BMap.Size(20,-10)});
+    markergps.setLabel(labelgps); //添加GPS标注
+
+    //坐标转换完之后的回调函数
+    translateCallback = function (point){
+        var marker = new BMap.Marker(point);
+        map.addOverlay(marker);
+        var label = new BMap.Label("我是百度标注哦",{offset:new BMap.Size(20,-10)});
+        marker.setLabel(label); //添加百度label
+        map.setCenter(point);
+        alert(point.lng + "," + point.lat);
+    }
+
+        BMap.Convertor.translate(gpsPoint,0,translateCallback);     //真实经纬度转成百度坐标
+}
+</script>
