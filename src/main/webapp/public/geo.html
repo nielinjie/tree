@@ -1,23 +1,20 @@
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=b5fOwlQUVcqeuAvGX9oAMmSM"></script>
 
 
 
     <title>图腾柱</title>
-    <style type="text/css">
-        body, html,#allmap {width: 80%;height: 80%;overflow: hidden;margin:0;}
-    </style>
+
+    <link rel="stylesheet" type="text/css" href="css/geo.css"/>
 </head>
 <body>
 
-<h1>test release</h1>
-<p id="demo">Click the button to get your coordinates:</p>
-
-<button id="tryButton">Try It</button>
+<p id="positionText">Position is here when got.</p>
 <div id="allmap"></div>
 </body>
 </html>
@@ -31,14 +28,31 @@
 <script type="text/javascript" src="js/map.js"></script>
 <script type="text/javascript">
 
-// 百度地图API功能
-var ma = new BMap.Map("allmap");            // 创建Map实例
-var point = new BMap.Point(116.404, 39.915);    // 创建点坐标
-ma.centerAndZoom(point,15);                     // 初始化地图,设置中心点坐标和地图级别。
-ma.enableScrollWheelZoom();                            //启用滚轮放大缩小
+
+function getLocation(){
+
+        window.geo.getPosition(function(po){
+            window.map.showPosition(po)
+            window.map.markMap(window.ma,po)
+            delayLocation()
+        },alert)
+
+}
+function watchLocation(){
+    window.geo.watchPosition(function(po){
+            window.map.showPosition(po)
+            window.map.markMap(window.ma,po)
+        },alert)
+}
+$(function(){
+    // 百度地图API功能
+    window.ma = new BMap.Map("allmap");            // 创建Map实例
+    var point = new BMap.Point(116.404, 39.915);    // 创建点坐标
+    window.ma.centerAndZoom(point,15);                     // 初始化地图,设置中心点坐标和地图级别。
+    window.ma.enableScrollWheelZoom();                            //启用滚轮放大缩小
+    getLocation()
+    watchLocation()
 
 
-$("#tryButton").click(function(){
-            window.geo.getLocation(window.map.showPosition,alert)
-        })
+})
 </script>

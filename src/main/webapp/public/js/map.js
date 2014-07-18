@@ -1,36 +1,29 @@
 window.map={};
 (function(){
-window.map.showPosition=function(position) {
-    var x = document.getElementById("demo");
+    window.map.showPosition=function(position) {
+        var x = document.getElementById("positionText");
 
-        x.innerHTML="Latitude: " + position.coords.latitude +
-        "<br>Longitude: " + position.coords.longitude +
-        "<br>Time: "+ new Date().toTimeString()
+        x.innerHTML=position.coords.latitude +" - "
+        + position.coords.longitude + " - "
+        + new Date(position.timestamp).toTimeString()
+    }
 
+    window.map.markMap=function(ma,position){
         var xx=position.coords.longitude
         var yy=position.coords.latitude
 
         var gpsPoint = new BMap.Point(xx,yy);
 
+        window.geo.gpsToBaidu(gpsPoint,function(point){
+            window.map.markMapByBaiduPoint(ma,point,position)
+        })
+    }
 
-        ma.centerAndZoom(gpsPoint,15)
-
-
-        //添加谷歌marker和label
-        var markergps = new BMap.Marker(gpsPoint);
-        ma.addOverlay(markergps); //添加GPS标注
-        var labelgps = new BMap.Label("我是GPS标注哦",{offset:new BMap.Size(20,-10)});
-        markergps.setLabel(labelgps); //添加GPS标注
-
-        //坐标转换完之后的回调函数
-        translateCallback = function (point){
-            var marker = new BMap.Marker(point);
-            ma.addOverlay(marker);
-            var label = new BMap.Label("我是百度标注哦",{offset:new BMap.Size(20,-10)});
-            marker.setLabel(label); //添加百度label
-            ma.setCenter(point);
-        }
-
-            BMap.Convertor.translate(gpsPoint,0,translateCallback);     //真实经纬度转成百度坐标
-            }
+    window.map.markMapByBaiduPoint=function(ma,baiduPoint,position){
+        var marker = new BMap.Marker(baiduPoint);
+        ma.addOverlay(marker);
+//        var label = new BMap.Label("我是百度标注哦",{offset:new BMap.Size(20,-10)});
+//        marker.setLabel(label); //添加百度label
+        ma.setCenter(baiduPoint);
+    }
 })()
