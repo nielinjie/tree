@@ -4,7 +4,7 @@ import com.escalatesoft.subcut.inject.NewBindingModule
 import totemPoles.repository.{Repository, MongoRepository, MongoConfig}
 import totemPoles.auth._
 import unfiltered.filter.{Planify, Plan}
-import totemPoles.plan.{AllPlan, PassPlan, DataPlan}
+import totemPoles.plan.{WelcomePlan, AllPlan, PassPlan, DataPlan}
 import totemPoles.repository.MongoConfig
 import scala.Some
 
@@ -28,7 +28,11 @@ object IntegrateConfiguration extends NewBindingModule({
     }
     bind[List[Plan]] toModuleSingle {
       case m =>
-        List(new PassPlan, inject[Plan](Some(DataPlanId)))
+        List(
+          new WelcomePlan("./public/geo.html"),
+          new PassPlan,
+          inject[Plan](Some(DataPlanId))
+        )
     }
     bind[Plan] idBy AllPlanId toModuleSingle {
       implicit m =>
