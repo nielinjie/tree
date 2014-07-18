@@ -17,7 +17,5 @@ class WelcomePlan(val welcomeFile:String) extends Plan {
   override def intent: Intent = {
     case Path(Seg(Nil)) =>
       Ok~>Redirect(welcomeFile)
-    case r=>
-      Ok ~> ResponseString(r.underlying.getServletPath)
   }
 }
