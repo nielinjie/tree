@@ -30,21 +30,42 @@ dependencies {
     testCompile "junit:junit:4.11"
 }
 */
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.ajoberstar:grgit:0.2.1'
+    }
+}
+
+import org.ajoberstar.grgit.*
+
+def releaseDir='./deploy/totemPoles-release'
 
 
+task pkg(type:Exec) {
+    def releaseRepo = Grgit.open(project.file(releaseDir))
+    releaseRepo.checkout(branch: 'release')
+    releaseRepo.pull()
+    workingDir releaseDir
+    commandLine 'sbt', 'package'
+}
 
 
-task copyWar(type:Copy) {
-    def file=(fileTree('target/scala-2.10') {
+task cw(type:Copy,dependsOn:pkg) {
+    def rd=releaseDir
+    println(rd)
+    def file=(fileTree(releaseDir+'/target/scala-2.10') {
         include '*.war'
     } as List)[0]
     from zipTree(file)
-    into('deploy/appid7cz3f90co0/root')
+    into('./deploy/appid7cz3f90co0/root')
 }
-//task pkg(type:Exec){
-//    workingDir '.'
-//    commandLine 'sbt', 'package'
-//}
+
+
 //task push(type:Exec){
 //    workingDir 'deploy/appid7cz3f90co0'
 //    commandLine 'git','commit','-a','-m"deploy"'
