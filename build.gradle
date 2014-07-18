@@ -32,3 +32,21 @@ dependencies {
 */
 
 
+
+
+task copyWar(type:Copy) {
+    def file=(fileTree('target/scala-2.10') {
+        include '*.war'
+    } as List)[0]
+    from zipTree(file)
+    into('deploy/appid7cz3f90co0/root')
+}
+//task pkg(type:Exec){
+//    workingDir '.'
+//    commandLine 'sbt', 'package'
+//}
+//task push(type:Exec){
+//    workingDir 'deploy/appid7cz3f90co0'
+//    commandLine 'git','commit','-a','-m"deploy"'
+//    commandLine 'git','push','origin'
+//}
