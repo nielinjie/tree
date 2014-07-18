@@ -3,7 +3,7 @@ package totemPoles.plan
 import unfiltered.filter.Plan
 import unfiltered.filter.Plan.Intent
 import unfiltered.request.{Path, Seg}
-import unfiltered.response.{Redirect, Ok, Pass}
+import unfiltered.response.{ResponseString, Redirect, Ok, Pass}
 import com.escalatesoft.subcut.inject.{BindingModule, Injectable}
 
 
@@ -17,5 +17,7 @@ class WelcomePlan(val welcomeFile:String) extends Plan {
   override def intent: Intent = {
     case Path(Seg(Nil)) =>
       Ok~>Redirect(welcomeFile)
+    case r=>
+      Ok ~> ResponseString(r.underlying.getServletPath)
   }
 }

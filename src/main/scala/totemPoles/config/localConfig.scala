@@ -30,8 +30,8 @@ object IntegrateConfiguration extends NewBindingModule({
       case m =>
         List(
           new WelcomePlan("./public/geo.html"),
-          new PassPlan,
-          inject[Plan](Some(DataPlanId))
+          new PassPlan
+          ,inject[Plan](Some(DataPlanId))
         )
     }
     bind[Plan] idBy AllPlanId toModuleSingle {
