@@ -1,5 +1,15 @@
 window.map={markers:{}};
 (function(){
+    window.map.init=function(){
+        window.ma = new BMap.Map("allmap");            // 创建Map实例
+        var style={}
+        style.style="light"
+        style.features=["road","water","land","building"]
+        window.ma.setMapStyle(style)
+        var point = new BMap.Point(104.15701141457,30.63501858048);    // 创建点坐标
+        window.ma.centerAndZoom(point,17);                     // 初始化地图,设置中心点坐标和地图级别。
+        window.ma.enableScrollWheelZoom();                            //启用滚轮放大缩小
+    }
     window.map.showPosition=function(position) {
         var x = document.getElementById("positionText");
 
@@ -37,7 +47,11 @@ window.map={markers:{}};
             window.map.markers[markName].setPosition(baiduPoint)
             window.map.markers[markName+"-accuracy"].setCenter(baiduPoint)
         }else{
-            var marker = new BMap.Marker(baiduPoint);
+            var marker = new BMap.Marker(baiduPoint)
+            var icon=new BMap.Icon('./img/stoneAxe.png',new BMap.Size(30,30))
+            icon.imageSize=new BMap.Size(30,30)
+            icon.setAnchor(new BMap.Size(15,30))
+            marker.setIcon(icon)
             window.map.markers[markName]=marker
             ma.addOverlay(marker);
             if(position||position.coords.accuracy){
