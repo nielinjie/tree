@@ -10,22 +10,71 @@
 
     <title>图腾柱</title>
 
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/geo.css"/>
 </head>
 <body>
 
 <p id="positionText">Position is here when got.</p>
 <div id="allmap"></div>
+
+<div id="menu">
+    <ul class="fixed">
+        <li data-id="1">
+            <img art="type.self"/>
+            <div class="detail hide" data-id="1">
+                <p>
+                    <span interface="type.self">Person</span> - BianBian:
+                </p>
+                <p>
+                    Power: 30, Visual range: 80m
+                </p>
+            </div>
+        </li>
+    </ul>
+    <ul>
+        <li data-id="2">
+            <img art="type.pole"/>
+            <div class="detail hide" data-id="2">
+                <p>
+                    <span interface="type.pole">Pole</span> - The Home:
+                </p>
+                <p>
+                    Range: 100m
+                </p>
+            </div>
+        </li>
+        <li data-id="3">
+            <img art="type.gold"/>
+            <div class="detail hide" data-id="3">
+                <p>
+                    <span interface="type.gold">Gold</span>:
+                </p>
+                <p>
+                    Range: 100m
+                </p>
+            </div>
+        </li>
+    </ul>
+</div>
+
+
 </body>
 </html>
 
 
 
-<script src="js/lib/jquery.min.js">
-</script>
+<script src="js/lib/jquery.min.js"></script>
 <script type="text/javascript" src="js/convertor.js"></script>
+
+
+<script type="text/javascript" src="js/interface.js"></script>
+<script type="text/javascript" src="js/art.js"></script>
+
+
 <script type="text/javascript" src="js/geo.js"></script>
 <script type="text/javascript" src="js/map.js"></script>
+<script type="text/javascript" src="js/control.js"></script>
 <script type="text/javascript">
 
 

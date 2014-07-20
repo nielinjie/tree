@@ -46,6 +46,7 @@ window.map={markers:{}};
         if(window.map.markers[markName]){
             window.map.markers[markName].setPosition(baiduPoint)
             window.map.markers[markName+"-accuracy"].setCenter(baiduPoint)
+            window.map.markers[markName+"-accuracy"].setRadius(position.coords.accuracy)
         }else{
             var marker = new BMap.Marker(baiduPoint)
             var icon=new BMap.Icon('./img/stoneAxe.png',new BMap.Size(30,30))
