@@ -69,7 +69,7 @@ window.map={markers:{}};
             window.map.markers[markName]=marker
             ma.addOverlay(marker);
             if(position||position.coords.accuracy){
-                var acc = new BMap.Circle(baiduPoint,position.coords.accuracy,{strokeWeight:1,fillColor:"lightBlue",fillOpacity:0.2});
+                var acc = new BMap.Circle(baiduPoint,position.coords.accuracy,{strokeWeight:2,fillColor:"lightBlue",fillOpacity:0.2});
                 window.map.markers[markName+"-accuracy"]=acc
                 ma.addOverlay(acc);
             }

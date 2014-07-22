@@ -6,9 +6,11 @@ window.marks={
         icon.setAnchor(new BMap.Size(15,30))
         marker.setIcon(icon)
         window.map.markMap(window.ma,"self",marker,self.position)
-
-        var range = new BMap.Circle(null,self.visualRange,{strokeWeight:1,fillColor:"MediumAquaMarine",fillOpacity:0.5});
-        window.map.markMap(window.ma,"self-range",range,self.position)
+        var xx=self.position.coords.longitude
+        var yy=self.position.coords.latitude
+        var gpsPoint = new BMap.Point(xx,yy);
+        var range = new BMap.Circle(gpsPoint,self.visualRange,{strokeWeight:2,fillColor:"lightBlue",fillOpacity:0.5});
+        window.map.markMap(window.ma,"self_range",range,self.position)
     },
     "type.pole":function(pole){
         var marker = new BMap.Marker()
@@ -17,8 +19,10 @@ window.marks={
         icon.setAnchor(new BMap.Size(15,30))
         marker.setIcon(icon)
         window.map.markMap(window.ma,"pole-"+pole.id,marker,pole.position)
-
-        var range = new BMap.Circle(null,pole.range,{strokeWeight:1,fillColor:"MediumAquaMarine",fillOpacity:0.5});
+        var xx=pole.position.coords.longitude
+        var yy=pole.position.coords.latitude
+        var gpsPoint = new BMap.Point(xx,yy);
+        var range = new BMap.Circle(gpsPoint,pole.range,{strokeWeight:1,fillColor:"lightBlue",fillOpacity:0.5});
         window.map.markMap(window.ma,"pole-range-"+pole.id,range,pole.position)
     },
     "type.gold":function(obj){

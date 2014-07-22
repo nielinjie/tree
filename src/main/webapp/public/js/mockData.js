@@ -3,7 +3,18 @@ window.self={
     name: "扁扁",
     power: 80,
     visualRange: 60,
-    id:"a_self"
+    id:"a_self",
+    position:{
+                coords: {
+                    accuracy: null,
+                    altitude: null,
+                    altitudeAccuracy: null,
+                    heading: null,
+                    latitude: 30.581505899999994, //-0.01
+                    longitude: 104.0825054,
+                    speed: null
+                 }
+            },
 }
 
 window.items=[

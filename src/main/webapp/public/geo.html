@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=b5fOwlQUVcqeuAvGX9oAMmSM"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=ZDzECV1T97AHOVy0FwLGvKDU"></script>
 
 
 
@@ -48,7 +48,6 @@
 
 <script src="js/lib/jquery.min.js"></script>
 <script src="js/lib/underscore.js"></script>
-<script src="js/lib/geolib.min.js"></script>
 
 <script type="text/javascript" src="js/convertor.js"></script>
 
@@ -90,8 +89,15 @@ function markItems(){
 $(function(){
     // 百度地图API功能
     window.map.init()
-    getLocation()
-    watchLocation()
-    markItems()
+    window.ma.addEventListener("tilesloaded",function(){
+
+        watchLocation()
+        getLocation()
+        markItems()
+
+    });
+
+
+
 })
 </script>
