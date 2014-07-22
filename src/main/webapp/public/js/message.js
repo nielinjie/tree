@@ -43,10 +43,11 @@
         return function(messageD){
             var div=messageD
             var id=$(div).attr("data-id")
-            var rB=$("<span/>").addClass("glyphicon glyphicon-remove").click(function(){
+            var rB=$("<button type='button' class='btn btn-default btn-sm'/>")
+                .append($("<span/>").addClass("glyphicon glyphicon-remove")).click(function(){
                 removeMessage(id)
             })
-            div.append($("<button type='button' class='btn btn-default btn-xs'/>").append(rB))
+            div.append(rB)
         }
     }
     /*c
@@ -56,18 +57,17 @@
         return function(messageD){
             var div=messageD
             var id=$(div).attr("data-id")
-            var oB=$("<span/>").addClass("glyphicon glyphicon-ok").click(function(){
+            var oB=$("<button type='button' class='btn btn-default btn-sm'/>")
+                .append($("<span/>").addClass("glyphicon glyphicon-ok")).click(function(){
                 removeMessage(id)
                 callback(true,div)
             })
-            var cB=$("<span/>").addClass("glyphicon glyphicon-remove").click(function(){
+            var cB=$("<button type='button' class='btn btn-default btn-sm'/>")
+                .append($("<span/>").addClass("glyphicon glyphicon-remove")).click(function(){
                 removeMessage(id)
                 callback(false,div)
             })
-            div.append($("<button type='button' class='btn btn-default btn-sm'/>").append(oB))
-            .append($("<button type='button' class='btn btn-default btn-sm'/>").append(cB))
+            div.append(oB).append(cB)
         }
     }
-
-
 })()

@@ -18,17 +18,22 @@ window.map={markers:{}};
         + new Date(position.timestamp).toTimeString()
     }
 
-    window.map.markSelf=function(ma,position,setCenter){
-        window.map.markMap(window.ma,"self",position,true)
+    window.map.setCenter=function(ma,position){
+        var xx=position.coords.longitude
+        var yy=position.coords.latitude
+        var gpsPoint = new BMap.Point(xx,yy);
+        window.geo.gpsToBaidu(gpsPoint,function(point){
+           ma.setCenter(point)
+        })
     }
-    window.map.markMap=function(ma,markName,position,setCenter){
+    window.map.markMap=function(ma,markName,marker,position,setCenter){
         var xx=position.coords.longitude
         var yy=position.coords.latitude
 
         var gpsPoint = new BMap.Point(xx,yy);
 
         window.geo.gpsToBaidu(gpsPoint,function(point){
-            window.map.markMapByBaiduPoint(ma,markName,point,position,setCenter)
+            window.map.markMapByBaiduPoint(ma,markName,marker,point,position,setCenter)
         })
     }
     /*
@@ -44,17 +49,23 @@ window.map={markers:{}};
         __proto__: CoordinatesPrototype
         timestamp: 427478092009
     */
-    window.map.markMapByBaiduPoint=function(ma,markName,baiduPoint,position,setCenter){//position is for
+    window.map.markMapByBaiduPoint=function(ma,markName,marker,baiduPoint,position,setCenter){//position is for
         if(window.map.markers[markName]){
-            window.map.markers[markName].setPosition(baiduPoint)
+            var m= window.map.markers[markName]
+            if(m.setPosition){
+                m.setPosition(baiduPoint)
+            }else if(m.setCenter){
+                m.setCenter(baiduPoint)
+            }
             window.map.markers[markName+"-accuracy"].setCenter(baiduPoint)
             window.map.markers[markName+"-accuracy"].setRadius(position.coords.accuracy)
         }else{
-            var marker = new BMap.Marker(baiduPoint)
-            var icon=new BMap.Icon('./img/stoneAxe.png',new BMap.Size(30,30))
-            icon.imageSize=new BMap.Size(30,30)
-            icon.setAnchor(new BMap.Size(15,30))
-            marker.setIcon(icon)
+            //TODO support more mark
+            if(marker.setPosition){
+                marker.setPosition(baiduPoint)
+            }else if(marker.setCenter){
+                marker.setCenter(baiduPoint)
+            }
             window.map.markers[markName]=marker
             ma.addOverlay(marker);
             if(position||position.coords.accuracy){
@@ -67,7 +78,5 @@ window.map={markers:{}};
             ma.setCenter(baiduPoint);
         }
     }
-
-
-
+    //TODO cache baidu point to save a call?
 })()

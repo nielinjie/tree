@@ -3,8 +3,11 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="initial-scale=1, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=b5fOwlQUVcqeuAvGX9oAMmSM"></script>
 
@@ -45,8 +48,9 @@
 
 <script src="js/lib/jquery.min.js"></script>
 <script src="js/lib/underscore.js"></script>
-<script type="text/javascript" src="js/convertor.js"></script>
+<script src="js/lib/geolib.min.js"></script>
 
+<script type="text/javascript" src="js/convertor.js"></script>
 
 <script type="text/javascript" src="js/interface.js"></script>
 <script type="text/javascript" src="js/art.js"></script>
@@ -56,6 +60,7 @@
 
 <script type="text/javascript" src="js/geo.js"></script>
 <script type="text/javascript" src="js/map.js"></script>
+<script type="text/javascript" src="js/mark.js"></script>
 <script type="text/javascript" src="js/control.js"></script>
 <script type="text/javascript" src="js/message.js"></script>
 <script type="text/javascript" src="js/action.js"></script>
@@ -64,7 +69,9 @@
 
 function onLocationChange(po){
     window.map.showPosition(po)
-    window.map.markSelf()
+    window.self.position=po
+    window.marks["type.self"](window.self)
+    window.map.setCenter(window.ma,window.self.position)
 }
 
 function getLocation(){
@@ -74,12 +81,17 @@ function watchLocation(){
     window.geo.watchPosition(onLocationChange,window.message.err)
 }
 
+function markItems(){
+    _(window.items).each(function(item){
+        window.marks["type."+item.type](item)
+    })
+}
+
 $(function(){
     // 百度地图API功能
     window.map.init()
     getLocation()
     watchLocation()
-
-
+    markItems()
 })
 </script>
