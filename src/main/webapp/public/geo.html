@@ -62,20 +62,18 @@
 <script type="text/javascript">
 
 
+function onLocationChange(po){
+    window.map.showPosition(po)
+    window.map.markSelf()
+}
+
 function getLocation(){
-
-        window.geo.getPosition(function(po){
-            window.map.showPosition(po)
-            window.map.markMap(window.ma,"self",po,true)
-        },alert)
-
+    window.geo.getPosition(onLocationChange,window.message.err)
 }
 function watchLocation(){
-    window.geo.watchPosition(function(po){
-            window.map.showPosition(po)
-            window.map.markMap(window.ma,"self",po,true)
-        },alert)
+    window.geo.watchPosition(onLocationChange,window.message.err)
 }
+
 $(function(){
     // 百度地图API功能
     window.map.init()

@@ -14,7 +14,6 @@
     }
 
     window.message.message=function(html,funDiv){
-
         funDiv=funDiv || function(div){
             var id=$(div).attr("data-id")
             window.setTimeout(function(){
@@ -27,6 +26,19 @@
         return id
 
     }
+    window.message.info=function(errMsg){
+        window.message.message($("<div class='text-info'/>").text(errMsg))
+    }
+    window.message.err=function(errMsg){
+        window.message.message($("<div class='text-danger'/>").text(errMsg),window.message.removeButton())
+    }
+    window.message.success=function(errMsg){
+        window.message.message($("<div class='text-success'/>").text(errMsg))
+    }
+    window.message.failed=function(errMsg){
+        window.message.message($("<div class='text-warning'/>").text(errMsg),window.message.removeButton())
+    }
+
     window.message.removeButton=function(){
         return function(messageD){
             var div=messageD
@@ -56,4 +68,6 @@
             .append($("<button type='button' class='btn btn-default btn-sm'/>").append(cB))
         }
     }
+
+
 })()

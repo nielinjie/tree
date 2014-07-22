@@ -12,23 +12,22 @@
         })
     }
 })()
-
+//TODO need keep sync with server side action.
 window.actions={
         bless:function(sub){
             window.message.message($("<div/>").text("Will you bless? "+window.self.id+" -> "+sub)
                             ,window.message.confirm(function(ok,div){
                                 if(ok){
-                                    if(true){//post action
-                                        window.message.message("Bless finished: "+window.self.id+" -> "+sub)
+                                    if(true){//TODO post action
+                                        window.message.success("Bless finished: "+window.self.id+" -> "+sub)
                                     }else{
-                                        window.message.message("Bless failed: "+window.self.id+" -> "+sub,window.message.removeButton())
+                                        window.message.failed("Bless failed: "+window.self.id+" -> "+sub)
                                     }
                                 }else{
                                 }
                             }))
         },
         curse:function(sub){
-            window.message.message($("<div/>").text("Curse failed: "+window.self.id+" -> "+sub)
-                ,window.message.removeButton())
+            window.message.failed("Curse failed: "+window.self.id+" -> "+sub)
         }
     }

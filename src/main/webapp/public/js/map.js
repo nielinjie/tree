@@ -18,7 +18,9 @@ window.map={markers:{}};
         + new Date(position.timestamp).toTimeString()
     }
 
-
+    window.map.markSelf=function(ma,position,setCenter){
+        window.map.markMap(window.ma,"self",position,true)
+    }
     window.map.markMap=function(ma,markName,position,setCenter){
         var xx=position.coords.longitude
         var yy=position.coords.latitude
@@ -56,7 +58,7 @@ window.map={markers:{}};
             window.map.markers[markName]=marker
             ma.addOverlay(marker);
             if(position||position.coords.accuracy){
-                var acc = new BMap.Circle(baiduPoint,position.coords.accuracy,{strokeWeight:2,fillColor:"lightBlue",fillOpacity:0.2});
+                var acc = new BMap.Circle(baiduPoint,position.coords.accuracy,{strokeWeight:1,fillColor:"lightBlue",fillOpacity:0.2});
                 window.map.markers[markName+"-accuracy"]=acc
                 ma.addOverlay(acc);
             }
