@@ -18,34 +18,3 @@ html,body {
     margin: 0;
 }
 
-
-#menu{
-    position:absolute;
-    top:0;
-    right:0;
-    z-index:100;
-    margin:5px;
-
-    border: 1px solid;
-    padding: 5px;
-
-    background-color: rgba(255,255,255,0.5);
-}
-#menu ul.fixed {
-    border-bottom: solid 1px;
-}
-#menu ul {
-    padding:5px;
-    list-style:none;
-    margin-bottom:5px;
-}
-#menu li img{
-    width:30px;
-    height:30px;
-    margin-bottom: 8px;
-    cursor: pointer;
-}
-
-#menu p{
-    margin-bottom:5px;
-}
