@@ -1,12 +1,12 @@
 window.map={markers:{}};
 (function(){
-    window.map.init=function(){
+    window.map.init=function(po){
         window.ma = new BMap.Map("allmap");            // 创建Map实例
         var style={}
         style.style="light"
         style.features=["road","water","land","building"]
         window.ma.setMapStyle(style)
-        var point = new BMap.Point(104.15701141457,30.63501858048);    // 创建点坐标
+        var point = new BMap.Point(po.coords.longitude,po.coords.latitude);    // 创建点坐标
         window.ma.centerAndZoom(point,17);                     // 初始化地图,设置中心点坐标和地图级别。
         window.ma.enableScrollWheelZoom();                            //启用滚轮放大缩小
     }
@@ -57,8 +57,10 @@ window.map={markers:{}};
             }else if(m.setCenter){
                 m.setCenter(baiduPoint)
             }
-            window.map.markers[markName+"-accuracy"].setCenter(baiduPoint)
-            window.map.markers[markName+"-accuracy"].setRadius(position.coords.accuracy)
+            if(window.map.markers[markName+"-accuracy"]){
+                window.map.markers[markName+"-accuracy"].setCenter(baiduPoint)
+                window.map.markers[markName+"-accuracy"].setRadius(position.coords.accuracy)
+            }
         }else{
             //TODO support more mark
             if(marker.setPosition){
@@ -68,8 +70,8 @@ window.map={markers:{}};
             }
             window.map.markers[markName]=marker
             ma.addOverlay(marker);
-            if(position||position.coords.accuracy){
-                var acc = new BMap.Circle(baiduPoint,position.coords.accuracy,{strokeWeight:2,fillColor:"lightBlue",fillOpacity:0.2});
+            if(position && position.coords.accuracy){
+                var acc = new BMap.Circle(baiduPoint,position.coords.accuracy,{strokeWeight:1,strokeColor:"lightBlue",strokeOpacity:0.1,fillColor:"lightBlue",fillOpacity:0.2});
                 window.map.markers[markName+"-accuracy"]=acc
                 ma.addOverlay(acc);
             }

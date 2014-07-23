@@ -74,7 +74,13 @@ function onLocationChange(po){
 }
 
 function getLocation(){
-    window.geo.getPosition(onLocationChange,window.message.err)
+
+    window.geo.getPosition(function(po){
+        window.map.init(po)
+        onLocationChange(po)
+        watchLocation()
+        markItems()
+    },window.message.err)
 }
 function watchLocation(){
     window.geo.watchPosition(onLocationChange,window.message.err)
@@ -85,19 +91,9 @@ function markItems(){
         window.marks["type."+item.type](item)
     })
 }
-
 $(function(){
     // 百度地图API功能
-    window.map.init()
-    window.ma.addEventListener("tilesloaded",function(){
-
-        watchLocation()
         getLocation()
-        markItems()
-
-    });
-
-
 
 })
 </script>

@@ -56,7 +56,7 @@
         $("#menu img").closest("div").click(function(){
                 var id=$(this).closest("li").attr("data-id")
                 $("#menu .detail[data-id="+id+"]").toggleClass("hide")
-                $(this).closest("li").find("span.glyphicon").toggleClass("glyphicon-chevron-right glyphicon-chevron-down")
+                $(this).closest("li").find("span.chevron").toggleClass("glyphicon-chevron-right glyphicon-chevron-down")
         })
 
         window.setupArt($("#menu"))
@@ -72,4 +72,9 @@ $(function(){
     window.menu.refresh()
     window.setupArt()
     window.setupInterface()
+
+
+    $(".setCenter").click(function(){
+        window.map.setCenter(window.ma,window.self.position)
+    })
 })
