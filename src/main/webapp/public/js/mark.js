@@ -6,7 +6,7 @@ window.marks={
         icon.setAnchor(new BMap.Size(15,30))
         marker.setIcon(icon)
         window.map.markMap(window.ma,"self",marker,self.position)
-        var range = new BMap.Circle(null,self.visualRange,{strokeWeight:1,strokeColor:"DarkCyan",strokeOpacity:0.5,fillColor:"DarkCyan",fillOpacity:0.5});
+        var range = new BMap.Circle(null,self.visualRange,{strokeWeight:1,strokeColor:"Teal",strokeOpacity:0.5,fillColor:"Teal",fillOpacity:0.5});
         window.map.markMap(window.ma,"self_range",range,self.position,false)
     },
     "type.pole":function(pole){
@@ -16,7 +16,7 @@ window.marks={
         icon.setAnchor(new BMap.Size(15,30))
         marker.setIcon(icon)
         window.map.markMap(window.ma,"pole-"+pole.id,marker,pole.position)
-        var range = new BMap.Circle(null,pole.range,{strokeWeight:1,strokeColor:"DarkCyan",strokeOpacity:0.5,fillColor:"DarkCyan",fillOpacity:0.5});
+        var range = new BMap.Circle(null,pole.range,{strokeWeight:1,strokeColor:"Teal",strokeOpacity:0.5,fillColor:"Teal",fillOpacity:0.5});
         window.map.markMap(window.ma,"pole-range-"+pole.id,range,pole.position,false)
     },
     "type.gold":function(obj){

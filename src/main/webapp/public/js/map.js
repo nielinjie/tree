@@ -8,7 +8,7 @@ window.map={markers:{}};
         window.ma.setMapStyle(style)
         var point = new BMap.Point(po.coords.longitude,po.coords.latitude);    // 创建点坐标
         window.ma.centerAndZoom(point,17);                     // 初始化地图,设置中心点坐标和地图级别。
-        window.ma.enableScrollWheelZoom();                            //启用滚轮放大缩小
+//        window.ma.enableScrollWheelZoom();                            //启用滚轮放大缩小
     }
     window.map.showPosition=function(position) {
         var x = document.getElementById("positionText");
@@ -71,7 +71,7 @@ window.map={markers:{}};
             window.map.markers[markName]=marker
             ma.addOverlay(marker);
             if(position && position.coords.accuracy){
-                var acc = new BMap.Circle(baiduPoint,position.coords.accuracy,{strokeWeight:1,strokeColor:"lightBlue",strokeOpacity:0.1,fillColor:"lightBlue",fillOpacity:0.2});
+                var acc = new BMap.Circle(baiduPoint,position.coords.accuracy,{strokeWeight:1,strokeColor:"lightBlue",strokeOpacity:1,fillColor:""});
                 window.map.markers[markName+"-accuracy"]=acc
                 ma.addOverlay(acc);
             }

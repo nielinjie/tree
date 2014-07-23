@@ -70,16 +70,20 @@ function onLocationChange(po){
     window.map.showPosition(po)
     window.self.position=po
     window.marks["type.self"](window.self)
-    window.map.setCenter(window.ma,window.self.position)
 }
 
 function getLocation(){
 
     window.geo.getPosition(function(po){
         window.map.init(po)
+        window.self.position=po
+        window.ma.addEventListener("tilesloaded",function(){
+            window.marks["type.self"](window.self)
+        })
         onLocationChange(po)
         watchLocation()
         markItems()
+        window.map.setCenter(ma,window.self.position)
     },window.message.err)
 }
 function watchLocation(){
