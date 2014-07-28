@@ -17,8 +17,8 @@ window.self={
             },
 }
 
-window.items=[
-    {
+window.items={
+    "a_pole":{
         type:"pole",
         id:"a_pole",
         range:200,
@@ -35,9 +35,10 @@ window.items=[
              }
         },
     },
-    {
+   "a_gold":{
         type:"gold",
         id:'a_gold',
+        name: "a gold",
         position:{
             coords: {
                 accuracy: null,
@@ -50,7 +51,7 @@ window.items=[
             }
         },
     }
-]
+}
 
 mockPosition= {
     coords: {
