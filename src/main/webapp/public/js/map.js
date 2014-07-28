@@ -1,4 +1,4 @@
-window.map={markers:{}};
+window.map={markers:{},overlays:{}};
 (function(){
     window.map.init=function(po){
         window.ma = new BMap.Map("allmap");            // 创建Map实例
@@ -51,16 +51,21 @@ window.map={markers:{}};
         timestamp: 427478092009
     */
     window.map.markMapByBaiduPoint=function(ma,markName,marker,baiduPoint,position,setCenter){//position is for
-        if(window.map.markers[markName]){
-            var m= window.map.markers[markName]
+        if(m = window.map.markers[markName]){
             if(m.setPosition){
                 m.setPosition(baiduPoint)
             }else if(m.setCenter){
                 m.setCenter(baiduPoint)
             }
-            if(window.map.markers[markName+"-accuracy"]){
-                window.map.markers[markName+"-accuracy"].setCenter(baiduPoint)
-                window.map.markers[markName+"-accuracy"].setRadius(position.coords.accuracy)
+            m.hide()
+            m.draw()
+            m.show()
+            if(macc=window.map.markers[markName+"-accuracy"] ){
+                macc.setCenter(baiduPoint)
+                macc.setRadius(position.coords.accuracy)
+                macc.hide()
+                macc.draw()
+                macc.show()
             }
         }else{
             //TODO support more mark
@@ -72,18 +77,22 @@ window.map={markers:{}};
             window.map.markers[markName]=marker
             ma.addOverlay(marker);
             if(position && position.coords.accuracy){
+
                 var acc = new BMap.Circle(baiduPoint,position.coords.accuracy,{
                     strokeWeight:1,
                     strokeColor:"SlateGray",
                     strokeOpacity:1,
-                    strokeStyle:"dash",
+                    strokeStyle:"dashed",
                     fillColor:"none"});
                 window.map.markers[markName+"-accuracy"]=acc
                 ma.addOverlay(acc);
             }
         }
+
         if(setCenter){
-            ma.setCenter(baiduPoint);
+            ma.setCenter(baiduPoint); //setCenter will force overlays redraw
+        }else{
+            ma.setCenter(ma.getCenter()) //TODO this will force redraw?
         }
     }
     //TODO cache baidu point to save a call?
