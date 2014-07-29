@@ -32,8 +32,8 @@ object IntegrateConfiguration extends NewBindingModule({
         List(
           new WelcomePlan("./public/geo.html"),
           new PassPlan
-          ,inject[Plan](Some(DataPlanId))
           ,new ActionPlan
+          ,inject[Plan](Some(DataPlanId))
         )
     }
     bind[Plan] idBy AllPlanId toModuleSingle {

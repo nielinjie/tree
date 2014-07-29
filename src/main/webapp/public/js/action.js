@@ -21,6 +21,30 @@
             }
         }))
     }
+    /*
+        okCall=function(json)
+        failCall=function(status)
+    */
+    window.action = function(actionJson,okCall,failCall) {
+        failCall=failCall || function(status){
+            window.message.failed(status)
+        }
+        var request = $.ajax({
+          url: "/actions",
+          type: "POST",
+          data: JSON.stringify(actionJson),
+          contentType: "application/json",
+          dataType: "json"
+        });
+
+        request.success(function( json ) {
+          okCall(json)
+        });
+
+        request.fail(function( jqXHR, status ,err) {
+          failCall(err+" - "+jqXHR.responseText)
+        });
+    }
 })()
 
 //TODO need keep sync with server side action.
@@ -36,16 +60,14 @@ window.actions={
             "time":1406471514137,
             "id":"action"}
             */
-
-
             window.briefAndAction("bless",{sub:window.self,obj:window.items[obj],rule:window.rules["bless"]},function(){
-                            alert("send")
-                        })
+                alert("send")
+            })
         },
         curse:function(obj){
             window.briefAndAction("curse",{sub:window.self,obj:window.items[obj],rule:window.rules["curse"]},function(){
-                            alert("send")
-                        })
+                alert("send")
+            })
         },
         create:function(){
             /*
@@ -59,15 +81,29 @@ window.actions={
             "time":1406464298193,
             "id":"(uuid)"}
             */
-
-
             window.briefAndAction("create",{sub:window.self,rule:window.rules["create"]},function(){
-                alert("send")
+                var actionJson={
+                    "type":"create",
+                    "obj":"",
+                    "id":"",
+                    "sub":window.self.id,
+                    "name":"the pole",
+                    "poObj":{
+                        "lat":window.self.position.coords.latitude,
+                        "long":window.self.position.coords.longitude
+                    },
+                    "position":{
+                         "lat":window.self.position.coords.latitude,
+                         "long":window.self.position.coords.longitude
+                    },
+                    "time":1406464298193,
+                }
+                window.action(actionJson,function(json){})
             })
         },
         pick:function(obj){
-                    window.briefAndAction("pick",{sub:window.self,obj:window.items[obj],rule:window.rules["pick"]},function(){
-                        alert("send")
-                    })
-                }
+            window.briefAndAction("pick",{sub:window.self,obj:window.items[obj],rule:window.rules["pick"]},function(){
+                alert("send")
+            })
+        }
     }

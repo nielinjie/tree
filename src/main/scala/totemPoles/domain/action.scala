@@ -1,7 +1,7 @@
 package totemPoles.domain
 
 import scala.collection.mutable.ListBuffer
-import java.util.Date
+import java.util.{UUID, Date}
 import scala.util.{Failure, Try, Success}
 object Utils {
   implicit def s2t(msg:String):Throwable={
@@ -9,60 +9,63 @@ object Utils {
   }
 }
 
-trait Action {
+trait Action extends Product{
   def obj: String
 
   def sub: String
 
-  def affect():Try[String] = ???
+  def affect():Try[Unit] = ???
 
   def time: Long
 
-  def validate(): Try[String] = ???
+  def validate(): Try[Unit] = ???
   def id:String
   def `type`:String
+  def withId:Action
 }
 
 
-case class Create(obj: String, sub: String,name:String,poObj:Position, position:Position,time: Long,id:String,`type`:String="create") extends Action {
+case class Create(obj:String ,sub: String,name:String,poObj:Position, position:Position,time: Long,id:String,`type`:String="create") extends Action {
   import Utils._
-  override def affect():Try[String]={
-    Pole.create(name,poObj)
+  override def affect():Try[Unit]={
+    Pole.create(name,poObj).map(x=> ())
   }
   override def validate() ={
 
     Try{
-      Objs.getObj(sub).get.asInstanceOf[Person]
+      Objs.getObj(sub).getOrElse(throw s"can not find person ${sub}").asInstanceOf[Person]
     }.flatMap {
       person:Person =>
       if(poObj.distance(position) < person.visualRange){
-        Success("")
+        Success(())
       }else{
         Failure("too far")
       }
     }
   }
+  override def withId=this.copy(id=UUID.randomUUID().toString)
 }
 
 case class Bless(obj: String, sub: String, position:Position,time: Long,id:String,`type`:String="bless") extends Action {
+  import Utils._
   val costPower=2
   val getScore=10
   val returnGift=10
 
-  override def validate():Try[String]={
+  override def validate():Try[Unit]={
     (Objs.getObj(sub),Objs.getObj(obj)) match {
       case (Some(s:Person),Some(o:Pole))=>
         if(s.power<costPower)
           Failure(new IllegalArgumentException( "no enough power"))
         else
-          Success("")
-      case (None,_) => Failure(new IllegalArgumentException("cannot find obj."))
-      case (_,None)=>Failure(new IllegalArgumentException("cannot find sub."))
-      case _ =>Failure(new IllegalArgumentException("can not bless."))
+          Success(())
+      case (None,_) => Failure( s"can not find person ${sub}" )
+      case (_,None)=>Failure(s"can not find pole ${obj}")
+      case _ =>Failure(s"only person can bless pole.")
     }
 
   }
-  override def affect():Try[String]= {
+  override def affect():Try[Unit]= {
     val pole=Objs.getObj(obj).get.asInstanceOf[Pole]
     Objs.updateObj(pole.copy(score=pole.score+getScore))
     val person=Objs.getObj(sub).get.asInstanceOf[Person]
@@ -71,10 +74,11 @@ case class Bless(obj: String, sub: String, position:Position,time: Long,id:Strin
       lastUpdate = new Date().getTime,
       gift = person.gift+returnGift
     ))
-    Success("")
+    Success(())
     //TODO 记下log，以便必要时收回影响。
   }
 
+  override def withId=this.copy(id=UUID.randomUUID().toString)
 
 }
 
@@ -86,31 +90,19 @@ object Actions {
   def push(action: Action): Try[String] = {
     action.validate() match {
       case Success(_) => {
-        action.affect
-        Success(action.id)
+        val aid=if(action.id==null){
+          action.withId
+        }else{
+          action
+        }
+        aid.affect
+        Success(aid.id)
       }
-      case err => err
+      case Failure(err) =>Failure(err)
     }
 
   }
 
-//  def replay(obj: Obj, afterTime: Long = 0): Obj = {
-//    val subs = list.filter {
-//      a: Action =>
-//        a.time >= afterTime && a.sub == obj.id
-//    }
-//    val objs = list.filter {
-//      a: Action =>
-//        a.time >= afterTime && a.obj == obj.id
-//    }
-//    objs.foldLeft(subs.foldLeft(obj) {
-//      (o: Obj, action: Action) =>
-//        action.affectSub(o)
-//    }) {
-//      (o: Obj, action: Action) =>
-//        action.affectObj(o)
-//    }
-//  }
 
 
 }
