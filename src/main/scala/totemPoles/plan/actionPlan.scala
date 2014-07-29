@@ -7,34 +7,51 @@ import scalaz.{ Validation}
 import totemPoles.domain._
 import java.util.UUID
 import totemPoles.domain.Create
-import scala.util.{Success, Failure}
+import scala.util.Failure
+import unfiltered.request.{POST, Path}
+import scala.util.control.Exception._
+
+import unfiltered.response._
+import org.json4s.JsonAST.{JString, JField}
+import scala.util.Failure
+import scala.util.Success
+import org.json4s.JsonAST.JString
+import scala.util.Failure
+import totemPoles.domain.Create
+import totemPoles.domain.Bless
+import unfiltered.response.ResponseString
 
 class ActionPlan extends JsonRestPlan {
   implicit val formats=DefaultFormats
   val logger = LoggerFactory.getLogger(classOf[ActionPlan])
-  val repository = new Repository {
-    override def clear(): Unit = ???
+  val repository =  null
 
-    override def add(obj: JObject): UUID = {
-      logger.debug(s"action pushed - ${obj}")
-      val ac: Action = if (obj.values("type") == "create") {
-        obj.extract[Create]
-      } else {
-        obj.extract[Bless]
-      }
-      Actions.push(ac) match {
-        case Success(id)=>
-          UUID.fromString(id)
-        case Failure(t)=>
-          throw t
-      }
-    }
 
-    override def query(query: Option[JObject]): List[JObject] = ???
-
-  }
   val collectionName = "actions"
   val objName = "action"
 
   def validate(obj: JValue): Validation[String, JValue] = scalaz.Success(obj)
+  override def intent ={
+    case req@(POST(Path(`collectionPath`))) => {
+      checkContentJson(req) {
+        req match {
+          case JsonBody(c) => {
+            validate(c) match {
+              case scalaz.Success(d) => {
+                Actions.push(Actions(c)) match {
+                  case Success((result,_))=> Created ~> Json(JObject(JField("result", JString(result))))
+                  case Failure(t) => InternalServerError ~> ResponseString(t.getMessage)
+                }
+              }
+              case scalaz.Failure(f) => BadRequest ~> ResponseString(f)
+            }
+          }
+          case _ => BadRequest ~> ResponseString("Invalid json data")
+        }
+      }
+    }
+  }
+
+
+
 }
