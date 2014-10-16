@@ -1,13 +1,17 @@
-package totemPoles.repository
+package name.nielinjie.common.repository
 
-import org.json4s._
-import JsonDSL._
 import java.util.UUID
+
+import org.json4s.JsonDSL._
+import org.json4s._
 
 trait Repository {
   def add(obj:JObject):UUID
   def query(query:Option[JObject]):List[JObject]
   def clear():Unit
+  def update(id:UUID,obj:JObject):Unit
+  def get(id:UUID):Option[JObject]
+  def remove(query:JObject):Unit
 }
 class MapRepository extends Repository{
   private var repository: scala.collection.mutable.Map[UUID, JObject] = scala.collection.mutable.Map.empty
@@ -25,4 +29,12 @@ class MapRepository extends Repository{
   def clear = {
     repository.clear()
   }
+
+  override def update(id: UUID, obj: JObject): Unit = {
+    repository.update(id,obj)
+  }
+
+  override def get(id: UUID): Option[JObject] = repository.get(id)
+
+  override def remove(query: JObject): Unit = ???
 }

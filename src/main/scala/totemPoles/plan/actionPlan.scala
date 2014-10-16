@@ -1,17 +1,15 @@
 package totemPoles.plan
 
-import org.slf4j.LoggerFactory
+import name.nielinjie.common.plan.JsonRestPlan
+import org.json4s.JsonAST.{JField, JString}
 import org.json4s._
-import scalaz.Validation
+import org.slf4j.LoggerFactory
 import totemPoles.domain._
 import unfiltered.request.{POST, Path}
+import unfiltered.response.{ResponseString, _}
 
-import unfiltered.response._
-import org.json4s.JsonAST.JField
-import scala.util.Success
-import org.json4s.JsonAST.JString
-import scala.util.Failure
-import unfiltered.response.ResponseString
+import scala.util.{Failure, Success}
+import scalaz.Validation
 
 class ActionPlan extends JsonRestPlan {
   implicit val formats=DefaultFormats

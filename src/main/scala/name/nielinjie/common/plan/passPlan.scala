@@ -1,10 +1,9 @@
-package totemPoles.plan
+package name.nielinjie.common.plan
 
 import unfiltered.filter.Plan
 import unfiltered.filter.Plan.Intent
 import unfiltered.request.{Path, Seg}
-import unfiltered.response.{ResponseString, Redirect, Ok, Pass}
-import com.escalatesoft.subcut.inject.{BindingModule, Injectable}
+import unfiltered.response.{Ok, Pass, Redirect}
 
 
 class PassPlan extends Plan {

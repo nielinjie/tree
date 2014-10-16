@@ -1,34 +1,37 @@
 package totemPoles.config
 
 import com.escalatesoft.subcut.inject.NewBindingModule
-import totemPoles.auth.{AuthCallBackPlan, Auth, BaiduAuth, Author}
-
-import totemPoles.plan.{AllPlan, PassPlan, DataPlan}
-import totemPoles.repository.{MongoConfig, MongoRepository, Repository}
-import unfiltered.filter.{Planify, Plan}
+import name.nielinjie.common.baidu.auth.{Author, BaiduAuth}
+import name.nielinjie.common.domain.Users
+import name.nielinjie.common.plan.{AllPlan, PassPlan, UserInfoPlan, WelcomePlan}
+import name.nielinjie.common.repository.{Mongo, MongoConfig}
+import unfiltered.filter.Plan
 
 
 object BaiduMongo extends MongoConfig("mongo.duapp.com", 8908, "RFDKVYDKvgfRiuthPvWO", Some(("FqfGOgMrlc72Ovc9yYNeUO9i", "3t7C3qiiS18ZGKP2oWg2QS28WDG8Fz7z")))
 
 
-object ProductionConfig extends NewBindingModule({
+object ProductConfiguration extends NewBindingModule({
   implicit module =>
     import module._
-    import BindingKeys._
-    bind[Repository] idBy DataRepositoryId toProvider new MongoRepository("datas")
-    bind[MongoConfig] toSingle BaiduMongo
+    import totemPoles.config.BindingKeys._
 
-    bind[Author] toModuleSingle {
-      case m => BaiduAuth
-    }
-    bind[Auth] toProvider new Auth()(module)
-    bind[Plan] idBy DataPlanId toProvider {
-      implicit module =>
-        Planify(module.inject[Auth](None).apply(new DataPlan().intent))
-    }
+    bind[Author] toProvider  new BaiduAuth
+
+
+    bind[Mongo] toModuleSingle (_ => new Mongo)
+
+
+
+    bind[Users] toProvider new Users
+
     bind[List[Plan]] toModuleSingle {
-      case m =>
-        List(new PassPlan, inject[Plan](Some(DataPlanId)), new AuthCallBackPlan())
+      implicit m =>
+        List(
+          new WelcomePlan("./public/front.html"),
+          new PassPlan,
+          new UserInfoPlan
+        )
     }
     bind[Plan] idBy AllPlanId toModuleSingle {
       implicit m =>

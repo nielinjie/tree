@@ -1,17 +1,16 @@
 package totemPoles.plan
 
-import totemPoles.repository.Repository
-import org.json4s.{JObject, JValue}
-import scalaz.{Success, Validation}
 import java.util.UUID
+
+import name.nielinjie.common.plan.JsonRestPlan
+import name.nielinjie.common.repository.Repository
 import nielinjie.util.data.LookUp._
-import totemPoles.domain.{Position, Person, Objs}
-import org.json4s._
+import org.json4s.{JObject, JValue, _}
+import totemPoles.domain.{Objs, Person, Position}
 
-
-import scalaz._
-import std.option._
 import scala.util.Try
+import scalaz.std.option._
+import scalaz.{Success, Validation, _}
 
 class VisualPlan extends JsonRestPlan {
   implicit val formats=DefaultFormats
@@ -54,6 +53,12 @@ class VisualPlan extends JsonRestPlan {
       }
 
     }
+
+    override def update(id: UUID, obj: JObject): Unit = ???
+
+    override def get(id: UUID): Option[JObject] = ???
+
+    override def remove(query: JObject): Unit = ???
   }
   override val collectionName: String = ???
 }

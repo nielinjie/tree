@@ -1,17 +1,11 @@
 package totemPoles.domain
 
-import scala.collection.mutable.ListBuffer
-import java.util.{UUID, Date}
-import scala.util.{Failure, Try, Success}
+import java.util.{Date, UUID}
+
 import org.json4s.JsonAST.JValue
 import org.json4s._
-import totemPoles.domain.Position
-import totemPoles.domain.Person
-import scala.util.Success
-import scala.util.Failure
-import totemPoles.domain.Create
-import totemPoles.domain.Bless
-import scala.Some
+
+import scala.util.{Failure, Success, Try}
 
 object Utils {
   implicit def s2t(msg: String): Throwable = {
@@ -40,7 +34,7 @@ trait Action extends Product {
 
 case class Create(obj: String, sub: String, name: String, poObj: Position, position: Position, time: Long, id: String, `type`: String = "create") extends Action {
 
-  import Utils._
+  import totemPoles.domain.Utils._
 
   override def affect(): Try[String] = {
     Pole.create(name, poObj).map(x => "Created.")
@@ -64,7 +58,7 @@ case class Create(obj: String, sub: String, name: String, poObj: Position, posit
 
 case class Bless(obj: String, sub: String, position: Position, time: Long, id: String, `type`: String = "bless") extends Action {
 
-  import Utils._
+  import totemPoles.domain.Utils._
 
   val costPower = 2
   val getScore = 10
