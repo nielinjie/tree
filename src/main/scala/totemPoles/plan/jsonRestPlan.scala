@@ -103,8 +103,13 @@ trait JsonRestPlan extends unfiltered.filter.Plan {
           case JsonBody(c) => {
             validate(c) match {
               case Success(d) => {
-                val uuid=repository.add(c.asInstanceOf[JObject])
-                Created ~> Json(JObject(JField("id",JString(uuid.toString))))
+                allCatch.either {
+                  val uuid = repository.add(c.asInstanceOf[JObject])
+                  Created ~> Json(JObject(JField("id", JString(uuid.toString))))
+                } .left .map {
+                  l=>
+                    InternalServerError ~> ResponseString(l.getMessage)
+                } .merge
               }
               case Failure(f) => BadRequest ~> ResponseString(f)
             }

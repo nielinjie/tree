@@ -23,11 +23,15 @@
         var id=_.uniqueId("message")
         var div=addMessage(id,html)
         funDiv(div)
+        window.setupInterface($(div))
         return id
 
     }
     window.message.info=function(errMsg){
         window.message.message($("<div class='text-info'/>").text(errMsg))
+    }
+    window.message.canceled=function(errMsg){
+            window.message.message($("<div class='text-info'/>").text(errMsg))
     }
     window.message.err=function(errMsg){
         window.message.message($("<div class='text-danger'/>").text(errMsg),window.message.removeButton())
