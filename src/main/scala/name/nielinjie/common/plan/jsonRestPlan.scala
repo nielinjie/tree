@@ -1,29 +1,21 @@
-package totemPoles.plan
+package name.nielinjie.common.plan
 
+import name.nielinjie.common.UUIDSerializer
+import name.nielinjie.common.repository.Repository
+import org.json4s.JsonAST.{JArray, JField, JString}
+import org.json4s._
+import org.json4s.ext.JodaTimeSerializers
+import org.json4s.native.JsonMethods._
+import org.slf4j.{Logger, LoggerFactory}
 import unfiltered.request._
 import unfiltered.response._
-import org.json4s._
-import org.json4s.JsonAST.{JString, JField, JArray}
-import totemPoles.repository.{Repository}
+
 import scala.util.control.Exception._
+import scalaz.{Failure, Success, Validation}
 
-import org.json4s.native.JsonMethods._
-
-import scalaz.{Validation, Failure, Success}
-import org.json4s.ext.JodaTimeSerializers
-import org.slf4j.{Logger, LoggerFactory}
-
-//TODO is thread safe?
-trait JsonRestPlan extends unfiltered.filter.Plan {
-  val log: Logger = LoggerFactory.getLogger(classOf[JsonRestPlan])
-  val objName: String
-  val collectionName: String
-  val repository: Repository
-
-  def validate(obj: JValue): Validation[String, JValue]
-
+trait JsonAware {
   object JsonBody {
-    implicit val formats = DefaultFormats++JodaTimeSerializers.all
+    implicit val formats = DefaultFormats++JodaTimeSerializers.all + UUIDSerializer
 
     def unapply[T](req: HttpRequest[T]): Option[JValue] =
       unfiltered.request.JsonBody(req)
@@ -37,14 +29,33 @@ trait JsonRestPlan extends unfiltered.filter.Plan {
   }
 
   def checkContentJson(req: HttpRequest[_])(body: => ResponseFunction[Any]): ResponseFunction[Any] = {
+
     req match {
-      case RequestContentType("application/json") => body
-      case _ => BadRequest ~> ResponseString("You must supply application/json")
+      //TODO this is too hard
+      case RequestContentType(s) if s.contains("json") && s.toUpperCase.contains("UTF-8")=> body
+      case _ => NotAcceptable ~> ResponseString("You must supply 'application/json;charset=UTF-8'")
     }
   }
 
+
+}
+
+
+
+//TODO is thread safe?
+trait JsonRestPlan extends unfiltered.filter.Plan with JsonAware{
+  val log: Logger = LoggerFactory.getLogger(classOf[JsonRestPlan])
+  val objName: String
+  val collectionName: String
+  val repository: Repository
+
+  def validate(obj: JValue): Validation[String, JValue]
+
+
+
+
   def idQuery(id: String) = {
-    JObject(List(JField("id", JObject(List(JField("$eq", JString(id)))))))
+    JObject(List(JField("id", JString(id))))
   }
 
   def query(q: Option[JObject]) = Ok ~> Json(JArray(repository.query(q)))
@@ -103,8 +114,13 @@ trait JsonRestPlan extends unfiltered.filter.Plan {
           case JsonBody(c) => {
             validate(c) match {
               case Success(d) => {
-                val uuid=repository.add(c.asInstanceOf[JObject])
-                Created ~> Json(JObject(JField("id",JString(uuid.toString))))
+                allCatch.either {
+                  val uuid = repository.add(c.asInstanceOf[JObject])
+                  Created ~> Json(JObject(JField("id", JString(uuid.toString))))
+                } .left .map {
+                  l=>
+                    InternalServerError ~> ResponseString(l.getMessage)
+                } .merge
               }
               case Failure(f) => BadRequest ~> ResponseString(f)
             }

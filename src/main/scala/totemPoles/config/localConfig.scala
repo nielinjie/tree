@@ -1,37 +1,32 @@
 package totemPoles.config
+import com.escalatesoft.subcut.inject.{BindingId, NewBindingModule}
+import name.nielinjie.common.baidu.auth.{Author, BaiduAuth}
+import name.nielinjie.common.domain.Users
+import name.nielinjie.common.plan.{AllPlan, PassPlan, UserInfoPlan, WelcomePlan}
+import name.nielinjie.common.repository.{Mongo, MongoConfig}
+import unfiltered.filter.Plan
 
-import com.escalatesoft.subcut.inject.NewBindingModule
-import totemPoles.repository.{Repository, MongoRepository, MongoConfig}
-import totemPoles.auth._
-import unfiltered.filter.{Planify, Plan}
-import totemPoles.plan.{WelcomePlan, AllPlan, PassPlan, DataPlan}
-import totemPoles.repository.MongoConfig
-import scala.Some
-
-
-
+object MogoConfigId extends BindingId
 object LocalMongo extends MongoConfig("localhost", 27017, "totemPoles", None)
 
 object IntegrateConfiguration extends NewBindingModule({
   implicit module =>
     import module._
-    import BindingKeys._
-    bind[Repository] idBy DataRepositoryId toProvider new MongoRepository("datas")
-    bind[MongoConfig] toSingle LocalMongo
-    bind[Author] toModuleSingle {
-      case m => BasicAuth
-    }
-    bind[Auth] toProvider new Auth()(module)
-    bind[Plan] idBy DataPlanId toProvider {
-      implicit module =>
-        Planify(module.inject[Auth](None).apply(new DataPlan().intent))
-    }
+    import totemPoles.config.BindingKeys._
+
+    bind[Author] toProvider  new BaiduAuth
+
+
+    bind[Mongo] toModuleSingle (_ => new Mongo)
+
+    bind[Users] toProvider new Users
+
     bind[List[Plan]] toModuleSingle {
-      case m =>
+      implicit m =>
         List(
-          new WelcomePlan("./public/geo.html"),
-          new PassPlan
-          ,inject[Plan](Some(DataPlanId))
+          new WelcomePlan("./public/front.html"),
+          new PassPlan,
+          new UserInfoPlan
         )
     }
     bind[Plan] idBy AllPlanId toModuleSingle {

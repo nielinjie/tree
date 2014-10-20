@@ -1,37 +1,6 @@
 
 (function(){
-    window.setupInterface=function($$){
-        $$=$$|| $("body")
-        $("*[interface]",$$).each(function(i,v){
-            var key=$(v).attr("interface")
-            if(key){
-                $(v).text(window.interface[key])
-            }
-        })
-    }
-    window.setupArt=function($$){
-        $$=$$|| $("body")
-        $("*[art]",$$).each(function(i,v){
-            var key=$(v).attr("art")
-            if(key){
-                $(v).attr("src","./img/"+window.art[key])
-            }
-        })
-    }
 
-
-    window.template=function(name){
-        //todo template cache?
-        function getRemote(url) {
-                return $.ajax({
-                    type: "GET",
-                    url: url,
-                    async: false
-                }).responseText;
-            }
-        var t=getRemote("./template/"+name+".template.html")
-        return _.template(t)
-    }
 
     window.menu={}
     window.menu.refresh=function(){

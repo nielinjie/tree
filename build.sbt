@@ -24,12 +24,8 @@ libraryDependencies ++= Seq(
     "com.baidu.bae" % "baev3-sdk" % "1.0.1",
     "org.slf4j" % "slf4j-log4j12" % "1.7.7",
     "net.databinder" %% "unfiltered-specs2" % "0.7.1" % "test",
-    "com.github.athieriot" %% "specs2-embedmongo" % "0.6.0" % "test",
-    "org.eclipse.jetty" % "jetty-webapp" % "9.1.0.v20131115" % "container",
-    "org.eclipse.jetty" % "jetty-plus"   % "9.1.0.v20131115" % "container"
+    "com.github.athieriot" %% "specs2-embedmongo" % "0.6.0" % "test"
 )
 
-net.virtualvoid.sbt.graph.Plugin.graphSettings
 
-
-seq(webSettings :_*)
+jetty()
