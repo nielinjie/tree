@@ -1,5 +1,9 @@
 package name.nielinjie.common.plan
 
+
+
+import scalaz.{Failure, Success, Validation}
+
 import name.nielinjie.common.UUIDSerializer
 import name.nielinjie.common.repository.Repository
 import org.json4s.JsonAST.{JArray, JField, JString}
@@ -11,7 +15,6 @@ import unfiltered.request._
 import unfiltered.response._
 
 import scala.util.control.Exception._
-import scalaz.{Failure, Success, Validation}
 
 trait JsonAware {
   object JsonBody {

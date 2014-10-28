@@ -16,6 +16,7 @@ libraryDependencies ++= Seq(
     "org.mongodb" %% "casbah" % "2.6.4",
     "org.json4s" %% "json4s-mongo" % "3.2.6",
     "org.json4s" %% "json4s-ext" % "3.2.6",
+    "org.json4s" %% "json4s-scalaz" % "3.2.6",
     "com.github.nscala-time" %% "nscala-time" % "0.6.0",
     "nielinjie" %% "util-data" % "1.0",
     "com.escalatesoft.subcut" %% "subcut" % "2.0",

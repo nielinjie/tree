@@ -1,5 +1,9 @@
 package name.nielinjie.common.baidu.auth
 
+import scalaz._
+import Scalaz._
+
+
 import dispatch.classic._
 import name.nielinjie.common.domain.{Imgs, User}
 import nielinjie.util.data.LookUp._
@@ -8,8 +12,6 @@ import org.json4s._
 import org.json4s.native.JsonMethods._
 import org.slf4j.LoggerFactory
 
-import scalaz.Scalaz._
-import scalaz._
 
 case class Err(code:String,msg:String)
 object BaiduSocial {

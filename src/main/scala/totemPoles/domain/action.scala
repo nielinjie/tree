@@ -1,129 +1,97 @@
 package totemPoles.domain
 
+
+import com.escalatesoft.subcut.inject.{BindingModule, Injectable}
+import org.json4s.JsonAST.{JNull, JString}
+import org.json4s.scalaz.JsonScalaz
+import totemPoles.domain.Objs.Affected
+
+import scalaz._
+import Scalaz._
+
 import java.util.{Date, UUID}
 
-import org.json4s.JsonAST.JValue
+import name.nielinjie.common.UUIDSerializer
 import org.json4s._
 
-import scala.util.{Failure, Success, Try}
 
-object Utils {
-  implicit def s2t(msg: String): Throwable = {
-    new IllegalArgumentException(msg)
+case class Action(id: UUID, `type`: String, properties: JObject, parameters: JObject, obj: UUID)
+case class Range(min:Int,max:Int)
+
+trait ActionType extends Injectable {
+
+  def id: UUID
+
+  val objs: Objs = inject[Objs]
+
+  implicit def s2u(s: String): UUID = UUID.fromString(s)
+
+  implicit val formats = DefaultFormats + UUIDSerializer
+
+
+  def name: String
+
+
+  def apply(act: Action): ValidationNel[String, Affected]
+
+  def enabled(obj: UUID): List[Action]
+
+  def objWithType(obj: UUID, typeId: UUID): ValidationNel[String, Obj] = objs.getObj(obj) match {
+    case None => ("obj not find").failureNel
+    case Some(t) if t.`type` == typeId => (t).successNel
+    case _ => (s"obj type must be ${typeId}").failureNel
+  }
+
+
+
+  def sure(validate: => Boolean, message: String): ValidationNel[String, Unit] = {
+    if (validate)
+      ().successNel
+    else
+      message.failureNel
   }
 }
 
-trait Action extends Product {
-  def obj: String
+object ActionType {
 
-  def sub: String
+}
 
-  def affect(): Try[String] = ???
+class ActionTypes(implicit val bindingModule: BindingModule) extends Injectable {
+  val acts = List(new Grow()) // ++ dynamic ones
 
-  def time: Long
+  def enabled(obj: UUID) = {
+    acts.map(_.enabled(obj)).flatten
+  }
 
-  def validate(): Try[Unit] = ???
-
-  def id: String
-
-  def `type`: String
-
-  def withId: Action
+  def find(name: String): Option[ActionType] = {
+    acts.find(_.name == name)
+  }
 }
 
 
-case class Create(obj: String, sub: String, name: String, poObj: Position, position: Position, time: Long, id: String, `type`: String = "create") extends Action {
+class Actions(implicit val bindingModule: BindingModule) extends Injectable {
+  val objs: Objs = inject[Objs]
+  val actionTypes: ActionTypes = inject[ActionTypes]
 
-  import totemPoles.domain.Utils._
 
-  override def affect(): Try[String] = {
-    Pole.create(name, poObj).map(x => "Created.")
-  }
-
-  override def validate() = {
-    Try {
-      Objs.getObj(sub).getOrElse(throw s"can not find person ${sub}").asInstanceOf[Person]
-    }.flatMap {
-      person: Person =>
-        if (poObj.distance(position) < person.visualRange) {
-          Success(())
-        } else {
-          Failure("too far")
+  def push(action: Action) = {
+    actionTypes.find(action.`type`) match {
+      case None => ("unknown type").failureNel
+      case Some(at) =>
+        at.apply(action) match {
+          case Success(aff: Affected) => {
+            objs.affect(aff)
+          }
+          case _ =>
         }
+      //TODO save snapshot of the world?
+
     }
   }
 
-  override def withId = this.copy(id = UUID.randomUUID().toString)
-}
-
-case class Bless(obj: String, sub: String, position: Position, time: Long, id: String, `type`: String = "bless") extends Action {
-
-  import totemPoles.domain.Utils._
-
-  val costPower = 2
-  val getScore = 10
-  val returnGift = 10
-
-  override def validate(): Try[Unit] = {
-    (Objs.getObj(sub), Objs.getObj(obj)) match {
-      case (Some(s: Person), Some(o: Pole)) =>
-        if (s.power < costPower)
-          Failure(new IllegalArgumentException("no enough power"))
-        else
-          Success(())
-      case (None, _) => Failure(s"can not find person ${sub}")
-      case (_, None) => Failure(s"can not find pole ${obj}")
-      case _ => Failure(s"only person can bless pole.")
-    }
-
+  def enabled(obj: UUID): List[Action] = {
+    actionTypes.enabled(obj)
   }
 
-  override def affect(): Try[String] = {
-    val pole = Objs.getObj(obj).get.asInstanceOf[Pole]
-    Objs.updateObj(pole.copy(score = pole.score + getScore))
-    val person = Objs.getObj(sub).get.asInstanceOf[Person]
-    Objs.updateObj(person.copy(
-      lastPower = person.power - costPower,
-      lastUpdate = new Date().getTime,
-      gift = person.gift + returnGift
-    ))
-    Success("Blessed")
-    //TODO 记下log，以便必要时收回影响。
-  }
-
-  override def withId = this.copy(id = UUID.randomUUID().toString)
-
-}
-
-
-object Actions {
-  implicit val formats=DefaultFormats
-
-  //TODO need to be sync?
-  def push(action: Action): Try[(String, String)] = {
-    action.validate() match {
-      case Success(_) => {
-        val aid = if (action.id == null) {
-          action.withId
-        } else {
-          action
-        }
-        aid.affect.flatMap {
-          result =>
-            Success(result, aid.id)
-        }
-      }
-      case Failure(err) => Failure(err)
-    }
-
-  }
-  def apply(j:JValue):Action={
-    val obj=j.asInstanceOf[JObject]
-    if (obj.values("type") == "create") {
-      obj.extract[Create]
-    } else {
-      obj.extract[Bless]
-    }
-  }
 
 }
