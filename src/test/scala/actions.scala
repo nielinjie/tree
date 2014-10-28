@@ -25,7 +25,7 @@ class ActionsSpec extends  Specification{
     "enabled" in new ObjsWithPersonAndTree {
       actions.enabled(person.id) must beLike{
         case (action:Action)::Nil=>
-          action.`type` must(beEqualTo("Grow"))
+          action.`type` must(beEqualTo(Grow.id))
           action.field[UUID]("sub") must successAndEquals(tree.id)
           action.obj must be_==(person.id)
           action.paraField[Range]("amount") must successAndEquals(Range(1,100))

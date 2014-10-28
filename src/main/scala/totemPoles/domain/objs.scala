@@ -20,9 +20,11 @@ object Person extends ObjType {
 
   override def validate(affected: JObject): Validation[String, Unit] = ???
 
+  val pow=prop[BigInt]("pow")
+
 }
 
-object Tree extends ObjType {
+object Tree extends ObjType with HasOwner{
   override def id: UUID = "209ed829-f6af-459d-bfa6-ccd4bb5bbabc"
 
   override def update(affected: JObject): Validation[String, Unit] = ???
@@ -30,4 +32,5 @@ object Tree extends ObjType {
   override def name: String = "Tree"
 
   override def validate(affected: JObject): Validation[String, Unit] = ???
+  val score=prop[BigInt]("score")
 }

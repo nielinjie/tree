@@ -2,8 +2,6 @@ package totemPoles.domain
 
 
 import com.escalatesoft.subcut.inject.{BindingModule, Injectable}
-import org.json4s.JsonAST.{JNull, JString}
-import org.json4s.scalaz.JsonScalaz
 import totemPoles.domain.Objs.Affected
 
 import scalaz._
@@ -15,16 +13,24 @@ import name.nielinjie.common.UUIDSerializer
 import org.json4s._
 
 
-case class Action(id: UUID, `type`: String, properties: JObject, parameters: JObject, obj: UUID)
+case class Action(id: UUID, `type`: UUID, properties: JObject, parameters: JObject, obj: UUID)
 case class Range(min:Int,max:Int)
 
-trait ActionType extends Injectable {
+trait HasSub {
+  self:TypeOps=>
+  import Objs._
+  val sub=prop[UUID]("sub")
+
+}
+
+
+trait ActionType extends TypeOps with Injectable {
 
   def id: UUID
 
   val objs: Objs = inject[Objs]
 
-  implicit def s2u(s: String): UUID = UUID.fromString(s)
+
 
   implicit val formats = DefaultFormats + UUIDSerializer
 
@@ -50,6 +56,8 @@ trait ActionType extends Injectable {
     else
       message.failureNel
   }
+
+
 }
 
 object ActionType {
@@ -63,8 +71,8 @@ class ActionTypes(implicit val bindingModule: BindingModule) extends Injectable 
     acts.map(_.enabled(obj)).flatten
   }
 
-  def find(name: String): Option[ActionType] = {
-    acts.find(_.name == name)
+  def find(id: UUID): Option[ActionType] = {
+    acts.find(_.id == id)
   }
 }
 

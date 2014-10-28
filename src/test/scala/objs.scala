@@ -22,7 +22,7 @@ class ObjsSpec extends Specification {
       import Objs._
 
       objs.getObj(person.id) must beSome(beEqualTo(person))
-      objs.updateObj(person.id, prop("pow" -> 120))
+      objs.updateObj(person.id, Person.pow.value(120))
       objs.getObj(person.id) must beSome(not(beEqualTo(person)))
       val newPerson = Obj(person.id, Person.id, "Jason", ("pow" -> 120))
       objs.getObj(person.id) must beSome(beEqualTo(newPerson))

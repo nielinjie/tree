@@ -5,6 +5,8 @@ import java.util.UUID
 import com.escalatesoft.subcut.inject.NewBindingModule
 import org.specs2.specification.Scope
 
+import org.json4s.JsonDSL._
+
 
 trait EmptyObjs extends Scope{
   class Config extends NewBindingModule(module => {
@@ -18,17 +20,14 @@ trait EmptyObjs extends Scope{
   val actions:Actions=config.inject[Actions](None)
 }
 trait ObjsWithAPerson extends EmptyObjs{
-  import Objs._
-  val person = Obj(UUID.randomUUID(), Person.id, "Jason", prop("pow"->100))
+  val person = Obj(UUID.randomUUID(), Person.id, "Jason", Person.pow.value(100))
   objs.create(person)
 }
 trait ObjsWithPersonAndTree extends ObjsWithAPerson{
-  import Objs._
-  val tree=Obj(UUID.randomUUID(), Tree.id, "Jason", prop("score" -> 100,"owner"->person.id))
+  val tree=Obj(UUID.randomUUID(), Tree.id, "Jason", Tree.score.value( 100) ~ Tree.owner.value(person.id))
   objs.create(tree)
 }
 trait ObjsWithPersonAndSomeTrees extends ObjsWithPersonAndTree{
-  import Objs._
-  val tree2=Obj(UUID.randomUUID(), Tree.id, "Jason", prop("score" -> 100,"owner"->UUID.randomUUID()))
+  val tree2=Obj(UUID.randomUUID(), Tree.id, "Jason", Tree.score.value(100) ~Tree.owner.value(UUID.randomUUID()))
   objs.create(tree2)
 }

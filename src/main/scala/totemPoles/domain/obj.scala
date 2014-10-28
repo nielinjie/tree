@@ -1,15 +1,16 @@
 package totemPoles.domain
 
 
-import org.json4s.scalaz.JsonScalaz
 
-import _root_.scalaz._
+import scalaz._
 import Scalaz._
+import org.json4s.scalaz.JsonScalaz
 
 import java.util.{Date, UUID}
 
 import name.nielinjie.common.UUIDSerializer
 import org.json4s._
+import org.json4s.JsonDSL._
 import org.json4s.JsonAST.{JString, JNull, JObject}
 import totemPoles.Geo
 
@@ -17,7 +18,48 @@ import scala.collection.mutable
 
 case class Obj(id: UUID, `type`: UUID, name: String, properties: JObject)
 
-trait ObjType {
+
+trait TypeOps{
+  type O =  {def properties: JObject}
+  type P =  {def parameters: JObject}
+  class Pro[T:JsonScalaz.JSONR](val name:String){
+
+    def validation:O => ValidationNel[String, T]={
+      import Objs._
+      obj: O =>
+        obj.field[T](name)
+    }
+    def value(t:T): JObject = {
+      implicit val formats = Objs.formats
+      (name -> Extraction.decompose(t)):JObject
+    }
+  }
+  class ProP[T:JsonScalaz.JSONR](val name:String){
+
+    def validation:P => ValidationNel[String, T]={
+      import Objs._
+      obj: P =>
+        obj.paraField[T](name)
+    }
+    def value(t:T): JObject = {
+      implicit val formats = Objs.formats
+      (name -> Extraction.decompose(t)):JObject
+    }
+  }
+  def prop[T:JsonScalaz.JSONR](name: String)=new Pro[T](name)
+  def para[T:JsonScalaz.JSONR](name: String)=new ProP[T](name)
+}
+trait HasOwner {
+  self:TypeOps=>
+  import Objs._
+
+  val owner=prop[UUID]("owner")
+}
+
+
+trait ObjType extends TypeOps{
+
+
   implicit val formats = DefaultFormats + UUIDSerializer
 
   implicit def s2u(s: String): UUID = UUID.fromString(s)
@@ -29,6 +71,8 @@ trait ObjType {
   def validate(affected: JObject): Validation[String, Unit]
 
   def update(affected: JObject): Validation[String, Unit]
+
+
 }
 
 object ObjTypes {
@@ -53,6 +97,10 @@ case class Position(lat: Double, long: Double) {
 object Objs {
   implicit val formats = DefaultFormats + UUIDSerializer
 
+  implicit class U(s: String) {
+    def toUUID: UUID = UUID.fromString(s)
+  }
+
   implicit val uuidJSONR: JsonScalaz.JSONR[UUID] = new JsonScalaz.JSONR[UUID] {
     def read(json: JValue): JsonScalaz.Result[UUID] = {
       json match {
@@ -66,7 +114,7 @@ object Objs {
   implicit val rangeJSONR: JsonScalaz.JSONR[Range] = new JsonScalaz.JSONR[Range] {
     def read(json: JValue): JsonScalaz.Result[Range] = {
       json match {
-        case _:JObject => Extraction.extract[Range](json).successNel
+        case _: JObject => Extraction.extract[Range](json).successNel
         case JNull => Success(null)
         case _ => JsonScalaz.UnexpectedJSONError(json, classOf[JString]).failNel
       }
@@ -88,13 +136,7 @@ object Objs {
 
   type Affected = List[(UUID, JObject)]
 
-  def prop(map: Map[String, Any]): JObject = {
-    Extraction.decompose(map).asInstanceOf[JObject]
-  }
 
-  def prop(map: (String, Any)*): JObject = {
-    prop(Map(map: _*))
-  }
 }
 
 class Objs {

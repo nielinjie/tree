@@ -30,28 +30,37 @@ import org.json4s.scalaz.JsonScalaz._
 //  override def enabled(obj: UUID): List[Action] = ???
 //}
 
-
-class Grow(implicit val bindingModule: BindingModule)  extends ActionType {
+object Grow{
   import Objs._
-  override def id: UUID = "8d8e973d-5362-457c-b65e-33664010c20d"
+  val id: UUID = "8d8e973d-5362-457c-b65e-33664010c20d".toUUID
+}
+
+class Grow(implicit val bindingModule: BindingModule)  extends ActionType with HasSub{
+  import Objs._
+  override def id: UUID = Grow.id
 
   override def name: String = "Grow"
 
+  val amount=prop[BigInt]("amount")
+
+  val amountPara=para[Range]("amount")
+
+
   override def apply(act: Action): ValidationNel[String, Affected] = {
     for {
-      person <- objWithType(act.obj, "Person")
-      treeId <- act.field[UUID]("sub")
-      tree <- objWithType(treeId, "Tree")
-      power <- person.field[BigInt]("power")
-      amount <- act.paraField[BigInt]("amount")
+      person <- objWithType(act.obj, Person.id)
+      treeId <- this.sub.validation(act)
+      tree <- objWithType(treeId, Tree.id)
+      power <- Person.pow.validation(person)
+      amount <- this.amount.validation(act)
       _ <- sure(power > amount, "pow not enough")
-      oldScore <- tree.field[BigInt]("score")
+      oldScore <- Tree.score.validation(tree)
       newScore <- (oldScore + amount).successNel
       newPower <- (power - amount).successNel
 
     } yield List(
-      person.id -> prop("power" -> newPower),
-      tree.id -> prop("score" -> newScore)
+      person.id -> Person.pow.value(newPower),
+      tree.id -> Tree.score.value(newScore)
     )
   }
 
@@ -60,11 +69,11 @@ class Grow(implicit val bindingModule: BindingModule)  extends ActionType {
     val find=(for {
       o <- objWithType(obj, Person.id).toOption
       sub <- objs.getByOwner(obj, Tree.id).headOption
-      pow <- field[BigInt]("pow")(o.properties).toOption
+      powI <- Person.pow.validation(o).toOption
     } yield List(Action(UUID.randomUUID(),
-        "Grow",
-        prop("sub" -> sub.id),
-        prop("amount" -> Range(1, pow.toInt)), obj)))
+        this.id,
+        this.sub.value(sub.id),
+        this.amountPara.value(Range(1, powI.toInt)), obj)))
      find.getOrElse(Nil)
   }
 }
