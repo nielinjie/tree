@@ -30,29 +30,28 @@ import org.json4s.scalaz.JsonScalaz._
 //  override def enabled(obj: UUID): List[Action] = ???
 //}
 
-object Grow{
+object Grow extends TypeOps with HasSub{
   import Objs._
   val id: UUID = "8d8e973d-5362-457c-b65e-33664010c20d".toUUID
+  val amount=prop[BigInt]("amount")
+
+  val amountPara=para[Range]("amount")
 }
 
-class Grow(implicit val bindingModule: BindingModule)  extends ActionType with HasSub{
+class Grow(implicit val bindingModule: BindingModule)  extends ActionType {
   import Objs._
+  import Grow._
   override def id: UUID = Grow.id
 
   override def name: String = "Grow"
 
-  val amount=prop[BigInt]("amount")
-
-  val amountPara=para[Range]("amount")
-
-
   override def apply(act: Action): ValidationNel[String, Affected] = {
     for {
       person <- objWithType(act.obj, Person.id)
-      treeId <- this.sub.validation(act)
+      treeId <- Grow.sub.validation(act)
       tree <- objWithType(treeId, Tree.id)
       power <- Person.pow.validation(person)
-      amount <- this.amount.validation(act)
+      amount <- Grow.amount.validation(act)
       _ <- sure(power > amount, "pow not enough")
       oldScore <- Tree.score.validation(tree)
       newScore <- (oldScore + amount).successNel
@@ -72,8 +71,8 @@ class Grow(implicit val bindingModule: BindingModule)  extends ActionType with H
       powI <- Person.pow.validation(o).toOption
     } yield List(Action(UUID.randomUUID(),
         this.id,
-        this.sub.value(sub.id),
-        this.amountPara.value(Range(1, powI.toInt)), obj)))
+        Grow.sub.value(sub.id),
+        Grow.amountPara.value(Range(1, powI.toInt)), obj)))
      find.getOrElse(Nil)
   }
 }

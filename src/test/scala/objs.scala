@@ -18,9 +18,6 @@ class ObjsSpec extends Specification {
       objs.getObj(person.id) must beSome(beEqualTo(person))
     }
     "update" in new ObjsWithAPerson {
-
-      import Objs._
-
       objs.getObj(person.id) must beSome(beEqualTo(person))
       objs.updateObj(person.id, Person.pow.value(120))
       objs.getObj(person.id) must beSome(not(beEqualTo(person)))

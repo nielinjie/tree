@@ -33,7 +33,9 @@ class ActionsSpec extends  Specification{
 
     }
     "affected" in new ObjsWithPersonAndTree {
-
+      val act=actions.enabled(person.id).head
+      val newAct=act.copy(properties=act.properties.merge(Grow.amount.value(30)))
+      actions
     }
   }
 }

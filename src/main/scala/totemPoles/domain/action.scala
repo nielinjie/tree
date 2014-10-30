@@ -26,14 +26,10 @@ trait HasSub {
 
 trait ActionType extends TypeOps with Injectable {
 
-  def id: UUID
-
   val objs: Objs = inject[Objs]
-
-
-
   implicit val formats = DefaultFormats + UUIDSerializer
 
+  def id: UUID
 
   def name: String
 
@@ -82,18 +78,15 @@ class Actions(implicit val bindingModule: BindingModule) extends Injectable {
   val actionTypes: ActionTypes = inject[ActionTypes]
 
 
-  def push(action: Action) = {
+  def push(action: Action):ValidationNel[String,Affected] = {
     actionTypes.find(action.`type`) match {
       case None => ("unknown type").failureNel
       case Some(at) =>
-        at.apply(action) match {
-          case Success(aff: Affected) => {
+        at.apply(action) .flatMap{
+          aff:Affected=>
             objs.affect(aff)
-          }
-          case _ =>
         }
       //TODO save snapshot of the world?
-
     }
   }
 

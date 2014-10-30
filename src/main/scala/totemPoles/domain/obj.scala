@@ -33,6 +33,8 @@ trait TypeOps{
       implicit val formats = Objs.formats
       (name -> Extraction.decompose(t)):JObject
     }
+//    def merge(t:T)
+
   }
   class ProP[T:JsonScalaz.JSONR](val name:String){
 
@@ -143,7 +145,7 @@ class Objs {
 
   import Objs._
 
-  def affect(affected: Affected): ValidationNel[String, Unit] = {
+  def affect(affected: Affected): ValidationNel[String, Affected] = {
     affected.foldLeft(().successNel[String]) {
       (r: ValidationNel[String, Unit], aff: (UUID, JObject)) =>
         this.getObj(aff._1).fold {
@@ -155,6 +157,9 @@ class Objs {
           x: Obj =>
             this.updateObj(aff._1, aff._2)
         }
+    }.map{
+      _ =>
+        affected
     }
   }
 
