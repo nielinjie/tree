@@ -84,6 +84,8 @@ task commit(dependsOn: cw) << {
 }
 
 task push()<<{
+    System.setProperty("org.ajoberstar.grgit.auth.username","nielinjie")
+    System.setProperty("org.ajoberstar.grgit.auth.password","baidu790127")
     def deployRepo = Grgit.open(project.file("./deploy/appid7cz3f90co0"))
     deployRepo.push()
 }
