@@ -2,17 +2,11 @@ package totemPoles.domain
 
 import java.util.UUID
 
-
 import com.escalatesoft.subcut.inject.BindingModule
-import totemPoles.domain.Objs.Affected
-
-import scalaz._
-import Scalaz._
-
-import org.json4s.{Extraction, JObject}
-
-
 import org.json4s.scalaz.JsonScalaz._
+
+import scalaz.Scalaz._
+import scalaz._
 
 //object Pick extends ActionType {
 //  override def id: UUID = "abd0abc7-b5ec-4a78-9004-1c5eb10fa8b0"
@@ -31,7 +25,7 @@ import org.json4s.scalaz.JsonScalaz._
 //}
 
 object Grow extends TypeOps with HasSub{
-  import Objs._
+  import totemPoles.domain.Objs._
   val id: UUID = "8d8e973d-5362-457c-b65e-33664010c20d".toUUID
   val amount=prop[BigInt]("amount")
 
@@ -39,8 +33,7 @@ object Grow extends TypeOps with HasSub{
 }
 
 class Grow(implicit val bindingModule: BindingModule)  extends ActionType {
-  import Objs._
-  import Grow._
+  import totemPoles.domain.Objs._
   override def id: UUID = Grow.id
 
   override def name: String = "Grow"
@@ -65,14 +58,14 @@ class Grow(implicit val bindingModule: BindingModule)  extends ActionType {
 
 
   override def enabled(obj: UUID): List[Action] = {
-    val find=(for {
+    val find= for {
       o <- objWithType(obj, Person.id).toOption
       sub <- objs.getByOwner(obj, Tree.id).headOption
       powI <- Person.pow.validation(o).toOption
     } yield List(Action(UUID.randomUUID(),
         this.id,
         Grow.sub.value(sub.id),
-        Grow.amountPara.value(Range(1, powI.toInt)), obj)))
+        Grow.amountPara.value(Range(1, powI.toInt)), obj))
      find.getOrElse(Nil)
   }
 }

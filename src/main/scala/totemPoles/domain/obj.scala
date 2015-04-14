@@ -2,18 +2,17 @@ package totemPoles.domain
 
 
 
-import scalaz._
-import Scalaz._
-import org.json4s.scalaz.JsonScalaz
-
-import java.util.{Date, UUID}
+import java.util.UUID
 
 import name.nielinjie.common.UUIDSerializer
-import org.json4s._
+import org.json4s.JsonAST.{JNull, JObject, JString}
 import org.json4s.JsonDSL._
-import org.json4s.JsonAST.{JString, JNull, JObject}
-import totemPoles.Geo
+import org.json4s.scalaz.JsonScalaz
 
+import scalaz.Scalaz._
+import scalaz._
+import org.json4s._
+import totemPoles.Geo
 import scala.collection.mutable
 
 case class Obj(id: UUID, `type`: UUID, name: String, properties: JObject)
@@ -25,7 +24,7 @@ trait TypeOps{
   class Pro[T:JsonScalaz.JSONR](val name:String){
 
     def validation:O => ValidationNel[String, T]={
-      import Objs._
+      import totemPoles.domain.Objs._
       obj: O =>
         obj.field[T](name)
     }
@@ -39,7 +38,7 @@ trait TypeOps{
   class ProP[T:JsonScalaz.JSONR](val name:String){
 
     def validation:P => ValidationNel[String, T]={
-      import Objs._
+      import totemPoles.domain.Objs._
       obj: P =>
         obj.paraField[T](name)
     }
@@ -53,7 +52,7 @@ trait TypeOps{
 }
 trait HasOwner {
   self:TypeOps=>
-  import Objs._
+  import totemPoles.domain.Objs._
 
   val owner=prop[UUID]("owner")
 }
@@ -143,7 +142,7 @@ object Objs {
 
 class Objs {
 
-  import Objs._
+  import totemPoles.domain.Objs._
 
   def affect(affected: Affected): ValidationNel[String, Affected] = {
     affected.foldLeft(().successNel[String]) {
@@ -199,7 +198,7 @@ class Objs {
   }
 
   def findByPosition(po: Position, distance: Double): List[Obj] = {
-    Positions.distance(po, distance).map(getObj(_)).flatten
+    Positions.distance(po, distance).map(getObj).flatten
   }
 
 
