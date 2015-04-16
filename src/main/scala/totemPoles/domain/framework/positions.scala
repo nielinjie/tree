@@ -1,4 +1,4 @@
-package totemPoles.domain
+package totemPoles.domain.framework
 
 import java.util.UUID
 

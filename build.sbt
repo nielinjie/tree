@@ -8,6 +8,7 @@ resolvers += "baidu" at "http://maven.duapp.com/nexus/content/repositories/relea
 
 libraryDependencies ++= Seq(
   "nielinjie" %% "util-cloud" % "1.0",
+  "com.lihaoyi" %% "scalarx" % "0.2.8",
   "net.databinder" %% "unfiltered-specs2" % "0.8.+" % "test",
   "com.github.athieriot" %% "specs2-embedmongo" % "0.7.0" % "test"
 )

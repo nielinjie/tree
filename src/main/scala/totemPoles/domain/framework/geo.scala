@@ -1,4 +1,4 @@
-package totemPoles
+package totemPoles.domain.framework
 
 object Geo {
   def distance(lat: Double, long: Double, lat2: Double, lon2: Double): Double = {

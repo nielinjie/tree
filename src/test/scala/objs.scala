@@ -2,11 +2,9 @@ package totemPoles.domain
 
 import java.util.UUID
 
-import com.escalatesoft.subcut.inject.NewBindingModule
-import org.json4s.JObject
 import org.json4s.JsonDSL._
 import org.specs2.mutable._
-import org.specs2.specification.Scope
+import totemPoles.domain.framework.Obj
 
 
 class ObjsSpec extends Specification {

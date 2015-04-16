@@ -6,6 +6,7 @@ import com.escalatesoft.subcut.inject.NewBindingModule
 import org.specs2.specification.Scope
 
 import org.json4s.JsonDSL._
+import totemPoles.domain.framework.{Objs, Obj, Actions, ActionTypes}
 
 
 trait EmptyObjs extends Scope{
