@@ -6,7 +6,7 @@ import com.escalatesoft.subcut.inject.{BindingModule, Injectable}
 import org.json4s.JsonAST.JObject
 import org.json4s.scalaz.JsonScalaz
 import totemPoles.domain.Grow
-import totemPoles.domain.framework.Objs.Affected
+import totemPoles.domain.framework.Validation.ErrorMessage
 
 import scalaz.Scalaz._
 import scalaz._
@@ -34,11 +34,11 @@ trait HasSub {
 trait ActionType extends TypeHelper with Params {
 
 
-  def apply(act: Action)(implicit objs: Objs): ValidationNel[String, Affected]
+  def apply(act: Action)(implicit objs: Objs): ValidationNel[ErrorMessage, Event]
 
   def enabled(obj: UUID)(implicit objs: Objs): List[Action]
 
-  def sure(validate: => Boolean, message: String): ValidationNel[String, Unit] = {
+  def sure(validate: => Boolean, message: String): ValidationNel[ErrorMessage, Unit] = {
     if (validate)
       ().successNel
     else
@@ -69,15 +69,11 @@ class Actions(implicit val bindingModule: BindingModule) extends Injectable {
   val actionTypes: ActionTypes = inject[ActionTypes]
 
 
-  def push(action: Action): ValidationNel[String, Affected] = {
+  def affected(action: Action): ValidationNel[ErrorMessage, Event] = {
     actionTypes.find(action.`type`) match {
       case None => "unknown type".failureNel
       case Some(at) =>
-        at.apply(action).flatMap {
-          aff: Affected =>
-            objs.affect(aff)
-        }
-      //TODO save snapshot of the world?
+        at.apply(action)
     }
   }
 

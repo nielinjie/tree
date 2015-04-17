@@ -3,6 +3,7 @@ package totemPoles.domain
 import java.util.UUID
 
 import org.json4s.scalaz.JsonScalaz._
+import totemPoles.domain.framework.Validation.ErrorMessage
 import totemPoles.domain.framework._
 
 import scalaz.Scalaz._
@@ -26,13 +27,12 @@ import scalaz.ValidationNel
 
 
 @Name("Grow")
-object Grow  extends ActionType  with HasSub{
-  import Objs._
+object Grow extends ActionType with HasSub {
 
-  val amount=prop[BigInt]("amount")
-  val amountPara=para[Range]("amount")
+  val amount = prop[BigInt]("amount")
+  val amountPara = para[Range]("amount")
 
-  override def apply(act: Action)(implicit objs:Objs): ValidationNel[String, Affected] = {
+  override def apply(act: Action)(implicit objs: Objs): ValidationNel[ErrorMessage, Event] = {
     for {
       person <- objs.objWithType(act.obj, Person.id)
       treeId <- subject.validation(act)
@@ -44,15 +44,15 @@ object Grow  extends ActionType  with HasSub{
       newScore <- (oldScore + amount).successNel
       newPower <- (power - amount).successNel
 
-    } yield List(
-      person.id -> Person.pow.value(newPower),
-      tree.id -> Tree.score.value(newScore)
-    )
+    } yield Event(List(
+      Affected(person.id, Person.pow.value(newPower)),
+      Affected(tree.id, Tree.score.value(newScore))
+    ))
   }
 
 
-  override def enabled(obj: UUID)(implicit objs:Objs): List[Action] = {
-    val find= for {
+  override def enabled(obj: UUID)(implicit objs: Objs): List[Action] = {
+    val find = for {
       o <- objs.objWithType(obj, Person.id).toOption
       s <- objs.getByOwner(obj, Tree.id).headOption
       powI <- Person.pow.validation(o).toOption
@@ -60,6 +60,6 @@ object Grow  extends ActionType  with HasSub{
         this.id,
         subject.value(s.id),
         amountPara.value(Range(1, powI.toInt)), obj))
-     find.getOrElse(Nil)
+    find.getOrElse(Nil)
   }
 }

@@ -3,6 +3,7 @@ package totemPoles.domain.framework
 import org.json4s.Extraction
 import org.json4s.JsonAST.JObject
 import org.json4s.scalaz.JsonScalaz
+import totemPoles.domain.framework.Validation._
 
 import scalaz._
 
@@ -19,7 +20,7 @@ trait Params extends JSON{
 
   class ProP[T:JsonScalaz.JSONR](val name:String){
 
-    def validation:P => ValidationNel[String, T]={
+    def validation:P => ValidationNel[ErrorMessage, T]={
       obj: P =>
         obj.paraField[T](name)
     }
@@ -28,7 +29,7 @@ trait Params extends JSON{
     }
   }
   implicit class PF(jo: {def parameters: JObject}) {
-    def paraField[T: JsonScalaz.JSONR](name: String): ValidationNel[String, T] = {
+    def paraField[T: JsonScalaz.JSONR](name: String): ValidationNel[ErrorMessage, T] = {
       JsonScalaz.field[T](name)(jo.parameters).leftMap(_.map(_.toString()))
     }
   }

@@ -6,6 +6,7 @@ import name.nielinjie.common.UUIDSerializer
 import org.json4s.JsonAST.{JNull, JObject, JString}
 import org.json4s.JsonDSL._
 import org.json4s.ext.JodaTimeSerializers
+import totemPoles.domain.framework.Validation._
 
 import scalaz.Scalaz._
 import org.json4s.scalaz.JsonScalaz
@@ -27,7 +28,7 @@ trait Properties extends JSON{
 
 
   implicit class F(jo: O) {
-    def field[T: JsonScalaz.JSONR](name: String): ValidationNel[String, T] = {
+    def field[T: JsonScalaz.JSONR](name: String): ValidationNel[ErrorMessage, T] = {
       JsonScalaz.field[T](name)(jo.properties).leftMap(_.map(_.toString()))
     }
   }
@@ -43,7 +44,7 @@ trait Properties extends JSON{
   def prop[T:JsonScalaz.JSONR](name: String)=new Pro[T](name)
 
   class Pro[T:JsonScalaz.JSONR](val name:String){
-    def validation:O => ValidationNel[String, T]={
+    def validation:O => ValidationNel[ErrorMessage, T]={
       obj: O =>
         obj.field[T](name)
     }
