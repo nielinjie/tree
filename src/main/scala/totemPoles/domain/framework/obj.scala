@@ -8,10 +8,9 @@ import totemPoles.domain.framework.Validation._
 import scala.collection.mutable
 import scalaz.Scalaz._
 import scalaz._
-import Validation._
 
 
-case class Obj(id: UUID, `type`: String, name: String, properties: JObject)
+case class Obj(id: UUID, `type`: String, name: String, properties: JObject) extends HasProperties
 
 
 trait HasOwner {
@@ -56,12 +55,21 @@ class Objs {
     map.get(id)
   }
 
-  def updateObj(id: UUID, affected: JObject): ValidationNel[ErrorMessage, Unit] = {
-    getObj(id).toSuccessNel(s"not find obj - $id")
+  def updateObj(id: UUID, affected: List[AffectPro[_]]): VE[ Unit] = {
+    getObj(id).toSuccessE(s"not find obj - $id")
       .map {
       obj: Obj =>
-        val newProperties: JObject = obj.properties.merge(affected)
-        map.update(id, obj.copy(properties = newProperties))
+        val a:List[VE[JObject]] =  affected.map(_.field(obj))
+        val aff:VE[List[JObject]] = a.
+          foldLeftM[VE,List[JObject]](List.empty[JObject])({
+          (l:List[JObject],b:VE[JObject])=>
+            b.map(_ :: l)
+        })
+        aff.map({
+          af:List[JObject]=>
+            val newProperties: JObject = af.foldLeft(obj.properties)(_.merge(_))
+            map.update(id, obj.copy(properties = newProperties))
+        })
     }
   }
 
@@ -73,9 +81,9 @@ class Objs {
     Positions.distance(po, distance).map(getObj).flatten
   }
 
-  def objWithType(obj: UUID, typeId: String): ValidationNel[ErrorMessage, Obj] = getObj(obj) match {
-    case None => "obj not find".failureNel
-    case Some(t) if t.`type` == typeId => t.successNel
-    case _ => s"obj type must has type -  '$typeId'".failureNel
+  def objWithType(obj: UUID, typeId: String): VE[Obj] = getObj(obj) match {
+    case None => "obj not find".left
+    case Some(t) if t.`type` == typeId => t.right
+    case _ => s"obj type must has type -  '$typeId'".left
   }
 }

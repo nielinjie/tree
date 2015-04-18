@@ -19,39 +19,42 @@ import _root_.scalaz._
  */
 
 object Properties extends Properties
-trait Properties extends JSON{
 
+trait Properties extends JSON {
+  import Validation._
   implicit class U(s: String) {
     def toUUID: UUID = UUID.fromString(s)
   }
 
 
-
-  implicit class F(jo: O) {
-    def field[T: JsonScalaz.JSONR](name: String): ValidationNel[ErrorMessage, T] = {
-      JsonScalaz.field[T](name)(jo.properties).leftMap(_.map(_.toString()))
+  implicit class F(jo: HasProperties) {
+    def field[T: JsonScalaz.JSONR](name: String): VE[ T] = {
+      JsonScalaz.field[T](name)(jo.properties).leftMap(_.toString)
     }
   }
-
-
-
-
-  type O =  {def properties: JObject}
 
 
   implicit def s2u(s: String): UUID = UUID.fromString(s)
 
-  def prop[T:JsonScalaz.JSONR](name: String)=new Pro[T](name)
+  def prop[T: JsonScalaz.JSONR](name: String) =  Pro[T](name)
 
-  class Pro[T:JsonScalaz.JSONR](val name:String){
-    def validation:O => ValidationNel[ErrorMessage, T]={
-      obj: O =>
-        obj.field[T](name)
-    }
-    def value(t:T): JObject = {
-      (name -> Extraction.decompose(t)):JObject
-    }
 
+}
+
+trait HasProperties {
+  def properties: JObject
+}
+
+case class Pro[T: JsonScalaz.JSONR](name: String) {
+  import Properties._
+  def validation: HasProperties => VE[ T] = {
+    obj: HasProperties =>
+      obj.field[T](name)
   }
+
+  def value(t: T): JObject = {
+    (name -> Extraction.decompose(t)): JObject
+  }
+
 
 }

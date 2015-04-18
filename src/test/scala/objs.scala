@@ -3,8 +3,9 @@ package totemPoles.domain
 import java.util.UUID
 
 import org.json4s.JsonDSL._
+import org.junit.runner.Computer
 import org.specs2.mutable._
-import totemPoles.domain.framework.Obj
+import totemPoles.domain.framework.{Computers, Operation, AffectPro, Obj}
 
 
 class ObjsSpec extends Specification {
@@ -16,8 +17,9 @@ class ObjsSpec extends Specification {
       objs.getObj(person.id) must beSome(beEqualTo(person))
     }
     "update" in new ObjsWithAPerson {
+      import Computers._
       objs.getObj(person.id) must beSome(beEqualTo(person))
-      objs.updateObj(person.id, Person.pow.value(120))
+      objs.updateObj(person.id, AffectPro(Person.pow,Operation("+",BigInt(20)))::Nil)
       objs.getObj(person.id) must beSome(not(beEqualTo(person)))
       val newPerson = Obj(person.id, Person.id, "Jason", ("pow" -> 120))
       objs.getObj(person.id) must beSome(beEqualTo(newPerson))

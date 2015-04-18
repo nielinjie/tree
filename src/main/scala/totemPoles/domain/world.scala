@@ -12,13 +12,13 @@ class World(implicit val bindingModule: BindingModule) extends Injectable {
   val actions = inject[Actions]
   implicit val objs = inject[Objs]
 
-  def action(action: Action): ValidationNel[ErrorMessage, Unit] = {
+  def action(action: Action): VE[Unit] = {
     actions.affected(action).flatMap(onEvent)
   }
 
   def enabledActions(personId: UUID): List[Action] = actions.enabled(personId)
 
-  def onEvent(event: Event): ValidationNel[ErrorMessage, Unit] = {
+  def onEvent(event: Event): VE[Unit] = {
     event.vote.flatMap({ _ => event.doIt })
   }
 

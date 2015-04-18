@@ -3,7 +3,7 @@ package totemPoles.domain
 import java.util.UUID
 
 import org.json4s.scalaz.JsonScalaz._
-import totemPoles.domain.framework.Validation.ErrorMessage
+import totemPoles.domain.framework.Validation.{VE, ErrorMessage}
 import totemPoles.domain.framework._
 
 import scalaz.Scalaz._
@@ -28,11 +28,11 @@ import scalaz.ValidationNel
 
 @Name("Grow")
 object Grow extends ActionType with HasSub {
-
+  import Computers._
   val amount = prop[BigInt]("amount")
   val amountPara = para[Range]("amount")
 
-  override def apply(act: Action)(implicit objs: Objs): ValidationNel[ErrorMessage, Event] = {
+  override def apply(act: Action)(implicit objs: Objs): VE[Event] = {
     for {
       person <- objs.objWithType(act.obj, Person.id)
       treeId <- subject.validation(act)
@@ -40,13 +40,11 @@ object Grow extends ActionType with HasSub {
       power <- Person.pow.validation(person)
       amount <- amount.validation(act)
       _ <- sure(power > amount, "pow not enough")
-      oldScore <- Tree.score.validation(tree)
-      newScore <- (oldScore + amount).successNel
-      newPower <- (power - amount).successNel
+
 
     } yield Event(List(
-      Affected(person.id, Person.pow.value(newPower)),
-      Affected(tree.id, Tree.score.value(newScore))
+      Affected(person.id, AffectPro(Person.pow, Operation[BigInt]("-",amount)) :: Nil),
+      Affected(tree.id, AffectPro(Tree.score, Operation[BigInt]("+",amount)) :: Nil)
     ))
   }
 

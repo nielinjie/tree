@@ -5,11 +5,10 @@ import totemPoles.domain.framework.Validation._
 import totemPoles.domain.{Tree, Person}
 
 import scala.annotation.StaticAnnotation
-import scalaz.{ValidationNel, Validation}
 
 trait ObjType extends TypeHelper {
 
-  def validate(affected: JObject): ValidationNel[ErrorMessage, Unit]
+  def validate(affected: List[AffectPro[_]]): VE[Unit] = ???
 
 
 }

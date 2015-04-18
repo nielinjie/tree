@@ -1,8 +1,7 @@
 package totemPoles.domain.framework
 
 
-
-trait TypeHelper extends Properties{
+trait TypeHelper extends Properties {
 
   lazy val id: String = {
     AnnotationUtil.name(this) match {

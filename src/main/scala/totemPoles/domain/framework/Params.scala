@@ -15,23 +15,24 @@ import org.json4s.JsonDSL._
  */
 object Params extends Params
 trait Params extends JSON{
-
-  type P =  {def parameters: JObject}
-
-  class ProP[T:JsonScalaz.JSONR](val name:String){
-
-    def validation:P => ValidationNel[ErrorMessage, T]={
-      obj: P =>
-        obj.paraField[T](name)
-    }
-    def value(t:T): JObject = {
-      (name -> Extraction.decompose(t)):JObject
-    }
-  }
-  implicit class PF(jo: {def parameters: JObject}) {
-    def paraField[T: JsonScalaz.JSONR](name: String): ValidationNel[ErrorMessage, T] = {
+  implicit class PF(jo: HasParameters) {
+    def paraField[T: JsonScalaz.JSONR](name: String): VE[ T] = {
       JsonScalaz.field[T](name)(jo.parameters).leftMap(_.map(_.toString()))
     }
   }
-  def para[T:JsonScalaz.JSONR](name: String)=new ProP[T](name)
+  def para[T:JsonScalaz.JSONR](name: String)= Param[T](name)
+}
+trait HasParameters {
+  def parameters: JObject
+}
+
+case class Param[T:JsonScalaz.JSONR](name:String){
+  import Params._
+  def validation:HasParameters => VE[ T]={
+    obj: HasParameters =>
+      obj.paraField[T](name)
+  }
+  def value(t:T): JObject = {
+    (name -> Extraction.decompose(t)):JObject
+  }
 }

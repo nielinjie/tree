@@ -6,13 +6,14 @@ import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 import totemPoles.domain.framework._
 
-import scalaz.Success
+import scalaz._
+import Scalaz._
 
 class ActionsSpec extends  Specification{
   object ObjsTest{
     def successAnd[T](fun: T=>MatchResult[T])={
       beLike[T]{
-        case Success(it:T)=> fun(it)
+        case \/-(it:T)=> fun(it)
       }
     }
     def successAndEquals[T](t:T)=successAnd({
@@ -23,9 +24,9 @@ class ActionsSpec extends  Specification{
   import Properties._
   import Params._
   import ObjsTest._
-  import JSON._
   "actions" should {
     "enabled" in new ObjsWithPersonAndTree {
+      import JSON._
       actions.enabled(person.id) must beLike{
         case (action:Action)::Nil=>
           action.`type` must(beEqualTo(Grow.id))
@@ -33,7 +34,6 @@ class ActionsSpec extends  Specification{
           action.obj must be_==(person.id)
           action.paraField[Range]("amount") must successAndEquals(framework.Range(1,100))
       }
-
     }
 //    "affected" in new ObjsWithPersonAndTree {
 //      val act=actions.enabled(person.id).head
