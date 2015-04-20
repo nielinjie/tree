@@ -16,7 +16,7 @@ import org.json4s.JsonDSL._
 object Params extends Params
 trait Params extends JSON{
   implicit class PF(jo: HasParameters) {
-    def paraField[T: JsonScalaz.JSONR](name: String): VE[ T] = {
+    def paraToVE[T: JsonScalaz.JSONR](name: String): VE[ T] = {
       JsonScalaz.field[T](name)(jo.parameters).leftMap(_.map(_.toString()))
     }
   }
@@ -28,11 +28,11 @@ trait HasParameters {
 
 case class Param[T:JsonScalaz.JSONR](name:String){
   import Params._
-  def validation:HasParameters => VE[ T]={
+  def toVE:HasParameters => VE[ T]={
     obj: HasParameters =>
-      obj.paraField[T](name)
+      obj.paraToVE[T](name)
   }
-  def value(t:T): JObject = {
+  def withValue(t:T): JObject = {
     (name -> Extraction.decompose(t)):JObject
   }
 }

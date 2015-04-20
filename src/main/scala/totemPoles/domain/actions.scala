@@ -28,36 +28,36 @@ import scalaz.ValidationNel
 
 @Name("Grow")
 object Grow extends ActionType with HasSub {
-  import Computers._
+  import framework.Validation._
+
   val amount = prop[BigInt]("amount")
   val amountPara = para[Range]("amount")
 
   override def apply(act: Action)(implicit objs: Objs): VE[Event] = {
     for {
       person <- objs.objWithType(act.obj, Person.id)
-      treeId <- subject.validation(act)
-      tree <- objs.objWithType(treeId, Tree.id)
-      power <- Person.pow.validation(person)
-      amount <- amount.validation(act)
+      tree <- subject.getter(act).flatMap(objs.objWithType(_, Tree.id))
+      owner <- Tree.owner.getter(tree)
+      _ <- sure(owner == person.id, "owner wrong")
+      power <- Person.pow.getter(person)
+      amount <- amount.getter(act)
       _ <- sure(power > amount, "pow not enough")
-
-
     } yield Event(List(
-      Affected(person.id, AffectPro(Person.pow, Operation[BigInt]("-",amount)) :: Nil),
-      Affected(tree.id, AffectPro(Tree.score, Operation[BigInt]("+",amount)) :: Nil)
+      Person.pow.affected(person, _ - amount),
+      Tree.score.affected(tree, _ + amount)
     ))
   }
 
 
   override def enabled(obj: UUID)(implicit objs: Objs): List[Action] = {
     val find = for {
-      o <- objs.objWithType(obj, Person.id).toOption
-      s <- objs.getByOwner(obj, Tree.id).headOption
-      powI <- Person.pow.validation(o).toOption
+      person <- objs.objWithType(obj, Person.id).toOption
+      tree <- objs.getByOwner(obj, Tree.id).headOption
+      powI <- Person.pow.getter(person).toOption
     } yield List(Action(UUID.randomUUID(),
-        this.id,
-        subject.value(s.id),
-        amountPara.value(Range(1, powI.toInt)), obj))
+        this.id, obj,
+        subject.withValue(tree.id),
+        amountPara.withValue(Range(1, powI.toInt))))
     find.getOrElse(Nil)
   }
 }

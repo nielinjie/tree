@@ -1,6 +1,6 @@
 package totemPoles.domain.framework
 
-import java.util.UUID
+import java.util.{Date, UUID}
 
 import org.json4s.JsonAST.JObject
 import totemPoles.domain.framework.Validation._
@@ -10,7 +10,7 @@ import scalaz.Scalaz._
 import scalaz._
 
 
-case class Obj(id: UUID, `type`: String, name: String, properties: JObject) extends HasProperties
+case class Obj(id: UUID, `type`: String, name: String, properties: JObject, timestamp: Date) extends HasProperties
 
 
 trait HasOwner {
@@ -37,6 +37,7 @@ case class Position(lat: Double, long: Double) {
 class Objs {
 
   import Properties._
+  import Validation._
 
 
   val map: mutable.Map[UUID, Obj] = mutable.Map()
@@ -45,7 +46,7 @@ class Objs {
     map.values.filter {
       (ob: Obj) =>
         (for {
-          owner <- ob.field[UUID]("owner")
+          owner <- ob.proToVE[UUID]("owner")
         } yield ob.`type` == `type` && owner == id)
           .getOrElse(false)
     }.toList
@@ -55,20 +56,13 @@ class Objs {
     map.get(id)
   }
 
-  def updateObj(id: UUID, affected: List[AffectPro[_]]): VE[ Unit] = {
+  def updateObj(id: UUID, affected: List[AffectPro[_]]): VE[Unit] = {
     getObj(id).toSuccessE(s"not find obj - $id")
       .map {
       obj: Obj =>
-        val a:List[VE[JObject]] =  affected.map(_.field(obj))
-        val aff:VE[List[JObject]] = a.
-          foldLeftM[VE,List[JObject]](List.empty[JObject])({
-          (l:List[JObject],b:VE[JObject])=>
-            b.map(_ :: l)
-        })
-        aff.map({
-          af:List[JObject]=>
-            val newProperties: JObject = af.foldLeft(obj.properties)(_.merge(_))
-            map.update(id, obj.copy(properties = newProperties))
+        ObjTypes.findByObj(obj).toSuccessE("not find objtype").flatMap(_.update(obj, affected)).map({
+          newO: Obj =>
+            map.update(newO.id, newO)
         })
     }
   }

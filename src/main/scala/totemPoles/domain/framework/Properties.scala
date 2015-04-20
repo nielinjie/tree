@@ -1,6 +1,6 @@
 package totemPoles.domain.framework
 
-import java.util.UUID
+import java.util.{Date, UUID}
 
 import name.nielinjie.common.UUIDSerializer
 import org.json4s.JsonAST.{JNull, JObject, JString}
@@ -21,14 +21,16 @@ import _root_.scalaz._
 object Properties extends Properties
 
 trait Properties extends JSON {
+
   import Validation._
+
   implicit class U(s: String) {
     def toUUID: UUID = UUID.fromString(s)
   }
 
 
   implicit class F(jo: HasProperties) {
-    def field[T: JsonScalaz.JSONR](name: String): VE[ T] = {
+    def proToVE[T: JsonScalaz.JSONR](name: String): VE[T] = {
       JsonScalaz.field[T](name)(jo.properties).leftMap(_.toString)
     }
   }
@@ -36,7 +38,7 @@ trait Properties extends JSON {
 
   implicit def s2u(s: String): UUID = UUID.fromString(s)
 
-  def prop[T: JsonScalaz.JSONR](name: String) =  Pro[T](name)
+  def prop[T: JsonScalaz.JSONR](name: String) = Pro[T](name)
 
 
 }
@@ -46,15 +48,27 @@ trait HasProperties {
 }
 
 case class Pro[T: JsonScalaz.JSONR](name: String) {
+
   import Properties._
-  def validation: HasProperties => VE[ T] = {
+
+  def getter: HasProperties => VE[T] = {
     obj: HasProperties =>
-      obj.field[T](name)
+      obj.proToVE[T](name)
   }
 
-  def value(t: T): JObject = {
+  def getterP: JObject => VE[T] = {
+    jo: JObject =>
+      JsonScalaz.field[T](name)(jo).leftMap(_.toString)
+  }
+
+  def withValue(t: T): JObject = {
     (name -> Extraction.decompose(t)): JObject
   }
 
+
+  def affected: (Obj, T => T) => Affected = {
+    (obj: Obj, fun: T => T) =>
+      Affected(obj.id, AffectPro(this, fun) :: Nil)
+  }
 
 }

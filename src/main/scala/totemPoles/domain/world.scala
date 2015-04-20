@@ -13,7 +13,7 @@ class World(implicit val bindingModule: BindingModule) extends Injectable {
   implicit val objs = inject[Objs]
 
   def action(action: Action): VE[Unit] = {
-    actions.affected(action).flatMap(onEvent)
+    actions.event(action).flatMap(onEvent)
   }
 
   def enabledActions(personId: UUID): List[Action] = actions.enabled(personId)
@@ -21,5 +21,6 @@ class World(implicit val bindingModule: BindingModule) extends Injectable {
   def onEvent(event: Event): VE[Unit] = {
     event.vote.flatMap({ _ => event.doIt })
   }
+  def obj(id:UUID) = objs.getObj(id)
 
 }

@@ -17,7 +17,7 @@ import org.json4s.JsonAST.JObject
 import org.json4s.JsonDSL._
 
 
-case class Action(id: UUID, `type`: String, properties: JObject, parameters: JObject, obj: UUID) extends HasProperties with HasParameters
+case class Action(id: UUID, `type`: String, obj: UUID, properties: JObject, parameters: JObject) extends HasProperties with HasParameters
 
 case class Range(min: Int, max: Int)
 
@@ -36,12 +36,7 @@ trait ActionType extends TypeHelper with Params {
 
   def enabled(obj: UUID)(implicit objs: Objs): List[Action]
 
-  def sure(validate: => Boolean, message: String): VE[Unit] = {
-    if (validate)
-      ().right
-    else
-     message.left
-  }
+
 
 
 }
@@ -67,7 +62,7 @@ class Actions(implicit val bindingModule: BindingModule) extends Injectable {
   val actionTypes: ActionTypes = inject[ActionTypes]
 
 
-  def affected(action: Action): VE[Event] = {
+  def event(action: Action): VE[Event] = {
     actionTypes.find(action.`type`) match {
       case None => "unknown type".left
       case Some(at) =>
